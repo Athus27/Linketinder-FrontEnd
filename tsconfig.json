@@ -1,0 +1,11 @@
+// /home/athus/Desktop/ZG/trilhasAcelera/K1T7/Linketinder-FrontEnd/tsconfig.json
+{
+	"compilerOptions": {
+		"target": "ES2022",
+		"module": "ES2022",
+		"moduleResolution": "bundler",
+		"strict": true,
+		"noEmit": true
+	},
+	"include": ["src/**/*.ts"]
+}
