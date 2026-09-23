@@ -1,5 +1,7 @@
-import { Header } from "./components/Header";
-import { CandidateRegisterPage } from "./pages/CandidateRegisterPage";
+import { LinketinderApp } from "./app/LinketinderApp";
 import { renderAll } from "./renderAll";
+
+export const app = new LinketinderApp();
+
 
 renderAll()

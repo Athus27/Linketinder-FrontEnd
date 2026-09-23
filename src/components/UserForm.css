@@ -1,0 +1,93 @@
+.user-form {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	padding: 24px;
+	background-color: var(--color-surface);
+	border: 1px solid var(--color-border);
+	border-radius: 8px;
+	box-shadow: 0 4px 16px rgb(36 50 61 / 8%);
+}
+
+.user-form h2 {
+	margin: 0 0 8px;
+	font-size: 1.4rem;
+	color: var(--color-text);
+}
+
+.form-field {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.form-field label {
+	font-size: 0.9rem;
+	font-weight: 600;
+	color: var(--color-text);
+}
+
+.form-field input,
+.form-field textarea {
+	width: 100%;
+	padding: 10px 12px;
+	border: 1px solid var(--color-border);
+	border-radius: 4px;
+	background-color: white;
+	color: var(--color-text);
+	outline: none;
+}
+
+.form-field textarea {
+	min-height: 100px;
+	resize: vertical;
+}
+
+.form-field input:focus,
+.form-field textarea:focus {
+	border-color: var(--color-primary);
+	box-shadow: 0 0 0 3px rgb(23 107 91 / 12%);
+}
+
+.user-form button {
+	padding: 11px 16px;
+	border: 0;
+	border-radius: 4px;
+	background-color: var(--color-primary);
+	color: white;
+	font-weight: 600;
+}
+
+.user-form button:hover {
+	background-color: var(--color-primary-hover);
+}
+
+.skills-tags {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.skill-tag {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 6px 10px;
+	border-radius: 16px;
+	background-color: var(--color-primary);
+	color: white;
+	font-size: 0.85rem;
+}
+
+.skill-tag button {
+	padding: 0;
+	background: transparent;
+	color: inherit;
+	font-size: 1rem;
+	line-height: 1;
+	cursor: pointer;
+}
+
+.skill-tag button:hover {
+	background: transparent;
+}

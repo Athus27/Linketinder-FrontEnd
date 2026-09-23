@@ -1,0 +1,34 @@
+:root {
+	font-family: Inter, Arial, sans-serif;
+	color: #24323d;
+	background-color: #f3f5f4;
+
+	--color-primary: #176b5b;
+	--color-primary-hover: #125548;
+	--color-surface: #ffffff;
+	--color-text: #24323d;
+	--color-text-muted: #66747e;
+	--color-border: #d7ddda;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+body {
+	margin: 0;
+	min-width: 320px;
+	min-height: 100vh;
+	background-color: #f3f5f4;
+}
+
+button,
+input,
+textarea,
+select {
+	font: inherit;
+}
+
+button {
+	cursor: pointer;
+}
