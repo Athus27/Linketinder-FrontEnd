@@ -1,0 +1,32 @@
+.like-form {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	width: min(680px, calc(100% - 32px));
+	margin: 40px auto;
+	padding: 24px;
+	background-color: var(--color-surface);
+	border: 1px solid var(--color-border);
+	border-radius: 8px;
+}
+
+.like-form h2,
+.like-form p {
+	margin: 0;
+}
+
+.like-form .form-field {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.like-form select,
+.like-form button {
+	padding: 10px 12px;
+}
+
+.like-form-message {
+	font-weight: 600;
+	color: var(--color-primary);
+}

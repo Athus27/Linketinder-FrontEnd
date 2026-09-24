@@ -3,7 +3,13 @@ import "./Header.css";
 interface HeaderActions {
 	onCreateCandidate: () => void;
 	onCreateCompany: () => void;
+	onCreateJob: () => void;
 	onViewCandidates: () => void;
+	onManageCandidates: () => void;
+	onViewCompanies: () => void;
+	onViewJobs: () => void;
+	onCandidateLike: () => void;
+	onCompanyLike: () => void;
 	onMenuToggle: (isOpen: boolean) => void;
 }
 
@@ -22,18 +28,20 @@ export function Header(actions: HeaderActions): HTMLElement {
 	</div>
 	<div id="company-submenu" class="header-row submenu" hidden>
 		<button id="create-company-button">Cadastrar empresa</button>
-		<button id="manage-companies-button">Gerenciar empresas</button>
+		<button id="view-companies-button">Visualizar empresas</button>
 		<button id="create-job-button">Cadastrar vaga</button>
 		<button id="manage-jobs-button">Gerenciar vagas</button>
 		<button id="view-candidates-button">Visualizar candidatos</button>
+		<button id="company-like-button">Curtir candidato</button>
 
-	</div>
+		</div>
 
-	<div id="candidate-submenu" class="header-row submenu" hidden>
-		<button id="create-candidate-button">Cadastrar candidato</button>
-		<button id="manage-candidates-button">Gerenciar candidatos</button>
-		<button id="candidate-feed-button">Visualizar vagas</button>
-	</div>
+		<div id="candidate-submenu" class="header-row submenu" hidden>
+			<button id="create-candidate-button">Cadastrar candidato</button>
+			<button id="manage-candidates-button">Gerenciar candidatos</button>
+			<button id="candidate-feed-button">Visualizar vagas</button>
+			<button id="candidate-like-button">Curtir vaga</button>
+		</div>
 
 	`;
 
@@ -44,11 +52,18 @@ export function Header(actions: HeaderActions): HTMLElement {
 	const companyButton = section.querySelector<HTMLButtonElement>("#menu-view-company-button");
 	const companySubmenu = section.querySelector<HTMLElement>("#company-submenu");
 	const createCompanyButton = section.querySelector<HTMLButtonElement>("#create-company-button");
+	const createJobButton = section.querySelector<HTMLButtonElement>("#create-job-button");
+	const manageJobsButton = section.querySelector<HTMLButtonElement>("#manage-jobs-button");
+	const viewCompaniesButton = section.querySelector<HTMLButtonElement>("#view-companies-button");
 	const viewCandidatesButton = section.querySelector<HTMLButtonElement>("#view-candidates-button");
+	const companyLikeButton = section.querySelector<HTMLButtonElement>("#company-like-button");
 
 	const candidateButton = section.querySelector<HTMLButtonElement>("#menu-view-candidate-button");
 	const candidateSubmenu = section.querySelector<HTMLElement>("#candidate-submenu");
 	const createCandidateButton = section.querySelector<HTMLButtonElement>("#create-candidate-button");
+	const manageCandidatesButton = section.querySelector<HTMLButtonElement>("#manage-candidates-button");
+	const viewJobsButton = section.querySelector<HTMLButtonElement>("#candidate-feed-button");
+	const candidateLikeButton = section.querySelector<HTMLButtonElement>("#candidate-like-button");
 
 	function closeSubmenus(): void {
 		if (!companyButton || !candidateButton) return;
@@ -96,12 +111,40 @@ export function Header(actions: HeaderActions): HTMLElement {
 		actions.onCreateCandidate();
 	});
 
+	manageCandidatesButton?.addEventListener("click", () => {
+		actions.onManageCandidates();
+	});
+
 	createCompanyButton?.addEventListener("click", () => {
 		actions.onCreateCompany();
 	});
-	
+
+	createJobButton?.addEventListener("click", () => {
+		actions.onCreateJob();
+	});
+
+	manageJobsButton?.addEventListener("click", () => {
+		actions.onViewJobs();
+	});
+
+	viewCompaniesButton?.addEventListener("click", () => {
+		actions.onViewCompanies();
+	});
+
 	viewCandidatesButton?.addEventListener("click", () => {
 		actions.onViewCandidates();
+	});
+
+	viewJobsButton?.addEventListener("click", () => {
+		actions.onViewJobs();
+	});
+
+	companyLikeButton?.addEventListener("click", () => {
+		actions.onCompanyLike();
+	});
+
+	candidateLikeButton?.addEventListener("click", () => {
+		actions.onCandidateLike();
 	});
 
 	return section;

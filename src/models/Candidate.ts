@@ -18,6 +18,6 @@ export class Candidate extends User {
 		super(name, description, email, state, cepCode);
 		this.skills = skills;
 		this.cpf = cpf;
-        this.age = age;
+		this.age = age;
 	}
 }

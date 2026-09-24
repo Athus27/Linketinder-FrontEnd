@@ -73,7 +73,6 @@ export function createUserForm(type: UserType): HTMLFormElement {
 
 	form.appendChild(submitButton);
 
-	// src/components/UserForm.ts
 	form.addEventListener("submit", (event) => {
 		event.preventDefault();
 
@@ -114,6 +113,7 @@ export function createUserForm(type: UserType): HTMLFormElement {
 
 		updateInfoCounters();
 		form.reset();
+		window.alert(`${type === "candidate" ? "Candidato" : "Empresa"} cadastrado com sucesso!`);
 	});
 
 	return form;
@@ -123,7 +123,7 @@ export function createUserForm(type: UserType): HTMLFormElement {
  * Cria um campo de entrada para adicionar competências (skills) com a funcionalidade de adicionar e remover tags.
  *
  */
-function createSkillsInput(): HTMLDivElement {
+export function createSkillsInput(): HTMLDivElement {
 	const field = document.createElement("div");
 	field.classList.add("form-field");
 

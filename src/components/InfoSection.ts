@@ -15,7 +15,10 @@ export function InfoSection(): HTMLElement {
 	const candidateCounter = document.createElement("div");
 	candidateCounter.id = "candidate-count";
 
-	section.append(title, companyCounter, candidateCounter);
+	const jobCounter = document.createElement("div");
+	jobCounter.id = "job-count";
+
+	section.append(title, companyCounter, candidateCounter, jobCounter);
 
 	// Preenche os valores iniciais depois que a seção entrar no DOM
 	queueMicrotask(updateInfoCounters);
@@ -26,6 +29,7 @@ export function InfoSection(): HTMLElement {
 export function updateInfoCounters(): void {
 	const companyCounter = document.querySelector("#company-count");
 	const candidateCounter = document.querySelector("#candidate-count");
+	const jobCounter = document.querySelector("#job-count");
 
 	if (companyCounter) {
 		companyCounter.textContent =
@@ -35,5 +39,10 @@ export function updateInfoCounters(): void {
 	if (candidateCounter) {
 		candidateCounter.textContent =
 			`Candidatos cadastrados: ${app.getCandidates().length}`;
+	}
+
+	if (jobCounter) {
+		jobCounter.textContent =
+			`Vagas cadastradas: ${app.getJobs().length}`;
 	}
 }

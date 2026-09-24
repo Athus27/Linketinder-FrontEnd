@@ -1,6 +1,12 @@
 import { Header } from "./components/Header";
+import { InfoSection } from "./components/InfoSection";
 import { RegisterPage } from "./pages/RegisterPage";
 import { CandidateFeedPage } from "./pages/CandidateFeedPage";
+import { CompanyFeedPage } from "./pages/CompanyFeedPage";
+import { JobFeedPage } from "./pages/JobFeedPage";
+import { JobRegisterPage } from "./pages/JobRegisterPage";
+import { CandidateLikePage } from "./pages/CandidateLikePage";
+import { CompanyLikePage } from "./pages/CompanyLikePage";
 
 export function renderAll(): void {
 	const app = document.getElementById("app");
@@ -11,6 +17,11 @@ export function renderAll(): void {
 
 	const pageContent = document.createElement("main");
 	pageContent.id = "page-content";
+
+	const routeContent = document.createElement("div");
+	routeContent.id = "route-content";
+
+	pageContent.append(InfoSection(), routeContent);
 
 	// A aplicação começa c/ o conteúdo oculto.
 	pageContent.hidden = true;
@@ -28,8 +39,26 @@ export function renderAll(): void {
 		onCreateCompany: (): void => {
 			changePage(RegisterPage("company"));
 		},
+		onCreateJob: (): void => {
+			changePage(JobRegisterPage());
+		},
+		onViewCompanies: (): void => {
+			changePage(CompanyFeedPage());
+		},
 		onViewCandidates: (): void => {
 			changePage(CandidateFeedPage());
+		},
+		onManageCandidates: (): void => {
+			changePage(CandidateFeedPage(true));
+		},
+		onViewJobs: (): void => {
+			changePage(JobFeedPage());
+		},
+		onCandidateLike: (): void => {
+			changePage(CandidateLikePage());
+		},
+		onCompanyLike: (): void => {
+			changePage(CompanyLikePage());
 		}
 	};
 
@@ -42,11 +71,11 @@ export function renderAll(): void {
 }
 
 export function changePage(newPage: HTMLElement): void {
-	const pageContent = document.getElementById("page-content");
+	const routeContent = document.getElementById("route-content");
 
-	if (!pageContent) {
-		throw new Error("Elemento #page-content não encontrado.");
+	if (!routeContent) {
+		throw new Error("Elemento #route-content não encontrado.");
 	}
 
-	pageContent.replaceChildren(newPage);
+	routeContent.replaceChildren(newPage);
 }

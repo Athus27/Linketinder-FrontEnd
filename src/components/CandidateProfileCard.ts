@@ -2,15 +2,17 @@ import type { Candidate } from "../models/Candidate";
 import "./CandidateProfileCard.css";
 
 interface CandidateCardActions {
+	onEdit: (candidateId: string) => void;
 	onDelete: (candidateId: string) => void;
+	onLike: (candidateId: string) => void;
 }
 
-export function CandidateProfileCard(candidate: Candidate, actions: CandidateCardActions): HTMLElement {
+export function CandidateProfileCard(candidate: Candidate, actions: CandidateCardActions, anonymous = false): HTMLElement {
 	const article = document.createElement("article");
 	article.classList.add("candidate-profile");
 
 	const name = document.createElement("h2");
-	name.textContent = candidate.name;
+	name.textContent = anonymous ? "Perfil de candidato" : candidate.name;
 
 	const location = document.createElement("p");
 	location.textContent = `${candidate.state} • ${candidate.age} anos`;
@@ -32,13 +34,15 @@ export function CandidateProfileCard(candidate: Candidate, actions: CandidateCar
 	editButton.type = "button";
 	editButton.classList.add("candidate-action");
 	editButton.ariaLabel = `Editar ${candidate.name}`;
-	editButton.disabled = true;
 
 	const editIcon = document.createElement("img");
 	editIcon.src = "/assets/icons/edit.svg";
 	editIcon.alt = "";
 
 	editButton.appendChild(editIcon);
+	editButton.addEventListener("click", () => {
+		actions.onEdit(candidate.id);
+	});
 
 	const deleteButton = document.createElement("button");
 	deleteButton.type = "button";
@@ -51,12 +55,29 @@ export function CandidateProfileCard(candidate: Candidate, actions: CandidateCar
 	deleteIcon.alt = "";
 
 	deleteButton.appendChild(deleteIcon);
-
 	deleteButton.addEventListener("click", () => {
 		actions.onDelete(candidate.id);
 	});
 
-	optionsCandidate.append(editButton, deleteButton);
+	const likeButton = document.createElement("button");
+	likeButton.type = "button";
+	likeButton.classList.add("candidate-action");
+	likeButton.ariaLabel = anonymous ? "Curtir candidato" : `Curtir ${candidate.name}`;
+
+	const likeIcon = document.createElement("img");
+	likeIcon.src = "/assets/icons/like.svg";
+	likeIcon.alt = "";
+
+	likeButton.appendChild(likeIcon);
+	likeButton.addEventListener("click", () => {
+		actions.onLike(candidate.id);
+	});
+
+	if (anonymous) {
+		optionsCandidate.append(likeButton);
+	} else {
+		optionsCandidate.append(editButton, deleteButton, likeButton);
+	}
 
 	candidate.skills.forEach((skill) => {
 		const skillTag = document.createElement("span");
@@ -66,7 +87,13 @@ export function CandidateProfileCard(candidate: Candidate, actions: CandidateCar
 		skillsContainer.appendChild(skillTag);
 	});
 
-	article.append(name, location, description, skillsTitle, skillsContainer, optionsCandidate);
+	article.append(name);
+
+	if (!anonymous) {
+		article.append(location);
+	}
+
+	article.append(description, skillsTitle, skillsContainer, optionsCandidate);
 
 	return article;
 }

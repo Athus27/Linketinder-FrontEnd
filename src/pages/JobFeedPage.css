@@ -1,0 +1,23 @@
+.job-feed-page {
+	width: min(1100px, calc(100% - 32px));
+	margin: 40px auto;
+}
+
+.job-feed-page > h1 {
+	margin: 0 0 24px;
+}
+
+.job-feed {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+	gap: 20px;
+}
+
+.job-feed-empty {
+	padding: 24px;
+	background-color: var(--color-surface);
+	border: 1px solid var(--color-border);
+	border-radius: 8px;
+	text-align: center;
+	color: var(--color-text-muted);
+}

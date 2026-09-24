@@ -1,0 +1,19 @@
+.candidate-edit-form {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	padding: 24px;
+	background-color: var(--color-surface);
+	border: 1px solid var(--color-primary);
+	border-radius: 8px;
+}
+
+.candidate-edit-actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
+}
+
+.candidate-edit-actions button {
+	padding: 10px 16px;
+}

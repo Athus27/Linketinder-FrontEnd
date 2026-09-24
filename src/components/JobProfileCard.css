@@ -1,0 +1,55 @@
+.job-profile {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	padding: 24px;
+	background-color: var(--color-surface);
+	border: 1px solid var(--color-border);
+	border-radius: 8px;
+	box-shadow: 0 4px 16px rgb(36 50 61 / 8%);
+}
+
+.job-profile h2,
+.job-profile h3,
+.job-profile p {
+	margin: 0;
+}
+
+.job-skills {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.job-skill {
+	padding: 6px 10px;
+	border-radius: 16px;
+	background-color: var(--color-primary);
+	color: white;
+	font-size: 0.85rem;
+}
+
+.job-options {
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
+	padding-top: 12px;
+	border-top: 1px solid var(--color-border);
+}
+
+.job-action {
+	display: grid;
+	place-items: center;
+	padding: 6px;
+	border: none;
+	background: transparent;
+}
+
+.job-action img {
+	width: 24px;
+	height: 24px;
+}
+
+.job-action .delete-icon {
+	filter: brightness(0);
+}

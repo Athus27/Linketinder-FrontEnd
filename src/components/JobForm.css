@@ -1,0 +1,38 @@
+.job-form {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	padding: 24px;
+	background-color: var(--color-surface);
+	border: 1px solid var(--color-border);
+	border-radius: 8px;
+	box-shadow: 0 4px 16px rgb(36 50 61 / 8%);
+}
+
+.job-form h2 {
+	margin: 0 0 8px;
+}
+
+.job-form select,
+.job-form input,
+.job-form textarea {
+	width: 100%;
+	padding: 10px 12px;
+	border: 1px solid var(--color-border);
+	border-radius: 4px;
+	background-color: white;
+}
+
+.job-form textarea {
+	min-height: 100px;
+	resize: vertical;
+}
+
+.job-form > button {
+	padding: 11px 16px;
+	border: 0;
+	border-radius: 4px;
+	background-color: var(--color-primary);
+	color: white;
+	font-weight: 600;
+}
