@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "node --import ./tests/register-typescript.mjs --test tests/*.test.mjs"
   },
   "repository": {
     "type": "git",
@@ -23,5 +24,9 @@
   "devDependencies": {
     "typescript": "^7.0.2",
     "vite": "^8.3.0"
+  },
+  "dependencies": {
+    "chart.js": "^4.5.1",
+    "vue-chartjs": "^5.3.4"
   }
 }

@@ -7,6 +7,8 @@ import { JobFeedPage } from "./pages/JobFeedPage";
 import { JobRegisterPage } from "./pages/JobRegisterPage";
 import { CandidateLikePage } from "./pages/CandidateLikePage";
 import { CompanyLikePage } from "./pages/CompanyLikePage";
+import { destroyCompetenceGraphs } from "./components/CompetenceGraph";
+import { GraphSkillsPage } from "./pages/GraphSkillsPage";
 
 export function renderAll(): void {
 	const app = document.getElementById("app");
@@ -59,6 +61,9 @@ export function renderAll(): void {
 		},
 		onCompanyLike: (): void => {
 			changePage(CompanyLikePage());
+		},
+		onViewCompetenceGraph: (): void => {
+			changePage(GraphSkillsPage());
 		}
 	};
 
@@ -77,5 +82,6 @@ export function changePage(newPage: HTMLElement): void {
 		throw new Error("Elemento #route-content não encontrado.");
 	}
 
+	destroyCompetenceGraphs(routeContent);
 	routeContent.replaceChildren(newPage);
 }

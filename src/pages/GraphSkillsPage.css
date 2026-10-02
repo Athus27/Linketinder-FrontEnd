@@ -1,0 +1,37 @@
+.graph-skills {
+    max-width: 960px;
+    margin: 24px auto;
+    padding: 24px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+}
+
+.graph-skills label {
+    display: block;
+    margin-bottom: 8px;
+}
+
+.graph-skills select,
+.graph-skills button {
+    max-width: 100%;
+    padding: 10px 14px;
+    margin: 0 8px 8px 0;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+}
+
+.graph-skills button {
+    background: var(--color-primary);
+    color: white;
+}
+
+.graph-skills button:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.competence-graph-canvas {
+    position: relative;
+    height: 360px;
+}

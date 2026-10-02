@@ -20,4 +20,8 @@ export class Candidate extends User {
 		this.cpf = cpf;
 		this.age = age;
 	}
+
+	public getSkills(): string[] {
+		return this.skills;
+	}
 }

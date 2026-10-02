@@ -8,6 +8,7 @@ interface HeaderActions {
 	onManageCandidates: () => void;
 	onViewCompanies: () => void;
 	onViewJobs: () => void;
+	onViewCompetenceGraph: () => void;
 	onCandidateLike: () => void;
 	onCompanyLike: () => void;
 	onMenuToggle: (isOpen: boolean) => void;
@@ -24,6 +25,7 @@ export function Header(actions: HeaderActions): HTMLElement {
 	<div class="header-options" hidden>
 		<button id="menu-view-company-button"><img class="icon" src="../../public/assets/icons/company.svg" alt="Menu" />Menu da Empresa</button>
 		<button id="menu-view-candidate-button"><img class="icon" src="../../public/assets/icons/candidate.svg" alt="Menu" />Menu do Candidato</button>
+		<button id="menu-view-competence-graph-button"><img class="icon" src="../../public/assets/icons/competence.svg" alt="Menu" />Grafico de Competencias</button>
 		
 	</div>
 	<div id="company-submenu" class="header-row submenu" hidden>
@@ -56,6 +58,7 @@ export function Header(actions: HeaderActions): HTMLElement {
 	const manageJobsButton = section.querySelector<HTMLButtonElement>("#manage-jobs-button");
 	const viewCompaniesButton = section.querySelector<HTMLButtonElement>("#view-companies-button");
 	const viewCandidatesButton = section.querySelector<HTMLButtonElement>("#view-candidates-button");
+	const viewCompetenceGraphButton = section.querySelector<HTMLButtonElement>("#menu-view-competence-graph-button");	
 	const companyLikeButton = section.querySelector<HTMLButtonElement>("#company-like-button");
 
 	const candidateButton = section.querySelector<HTMLButtonElement>("#menu-view-candidate-button");
@@ -137,6 +140,10 @@ export function Header(actions: HeaderActions): HTMLElement {
 
 	viewJobsButton?.addEventListener("click", () => {
 		actions.onViewJobs();
+	});
+
+	viewCompetenceGraphButton?.addEventListener("click", () => {
+		actions.onViewCompetenceGraph();
 	});
 
 	companyLikeButton?.addEventListener("click", () => {
