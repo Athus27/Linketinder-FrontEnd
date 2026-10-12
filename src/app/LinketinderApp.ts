@@ -11,12 +11,18 @@ export class LinketinderApp {
 	private likes: Like[] = [];
 
 	private load<T>(key: string): T[] {
-		const data = localStorage.getItem(key);
-		if (data) {
-			return JSON.parse(data) as T[];
+		const storedData = localStorage.getItem(key);
+
+		if (!storedData) {
+			return [];
 		}
-		console.log(`não encontrou dados para a chave: ${key}`);
-		return [];
+
+		try{
+			return JSON.parse(storedData) as T[];
+		}catch (error){
+			console.log(`Falha ao decodificar JSON para chave ${key}:`,error)
+			return []
+		}
 	}
 
 	private save<T>(key: string, data: T[]): void {
