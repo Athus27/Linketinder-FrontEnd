@@ -1,5 +1,6 @@
 import type { Job } from "../../models/Job";
 import type { CreateJobInput } from "../../types/EntityInputs";
+import { createEditFormActions } from "./actions/FormActions";
 import "./JobEditForm.css";
 
 interface JobEditFormActions {
@@ -29,18 +30,7 @@ export function JobEditForm(job: Job, actions: JobEditFormActions): HTMLFormElem
 	skills.value = job.skills.join(", ");
 	skills.required = true;
 
-	const saveButton = document.createElement("button");
-	saveButton.type = "submit";
-	saveButton.textContent = "Salvar";
-
-	const cancelButton = document.createElement("button");
-	cancelButton.type = "button";
-	cancelButton.textContent = "Cancelar";
-	cancelButton.addEventListener("click", actions.onCancel);
-
-	const buttons = document.createElement("div");
-	buttons.classList.add("job-edit-actions");
-	buttons.append(saveButton, cancelButton);
+	const buttons = createEditFormActions(actions.onCancel, "job-edit-actions");
 
 	form.append(heading, title, description, skills, buttons);
 

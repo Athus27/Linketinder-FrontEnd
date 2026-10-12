@@ -1,54 +1,13 @@
 import type { Candidate } from "../../models/Candidate";
 import type { CreateCandidateInput } from "../../types/EntityInputs";
+import { createEditInputField, createEditTextareaField } from "./fields/FormFields";
+import { createEditFormActions } from "./actions/FormActions";
+
 import "./CandidateEditForm.css";
 
 interface CandidateEditFormActions {
 	onSave: (data: CreateCandidateInput) => void;
 	onCancel: () => void;
-}
-
-function createInputField(candidateId: string, labelText: string, name: string, value: string, type = "text"): HTMLDivElement {
-	const field = document.createElement("div");
-	field.classList.add("form-field");
-
-	const label = document.createElement("label");
-	const input = document.createElement("input");
-
-	const inputId = `edit-${candidateId}-${name}`;
-
-	label.htmlFor = inputId;
-	label.textContent = labelText;
-
-	input.id = inputId;
-	input.name = name;
-	input.type = type;
-	input.value = value;
-	input.required = true;
-
-	field.append(label, input);
-
-	return field;
-}
-
-function createTextareaField(candidateId: string, labelText: string, name: string, value: string): HTMLDivElement {
-	const field = document.createElement("div");
-	field.classList.add("form-field");
-
-	const label = document.createElement("label");
-	const textarea = document.createElement("textarea");
-
-	const textareaId = `edit-${candidateId}-${name}`;
-
-	label.htmlFor = textareaId;
-	label.textContent = labelText;
-
-	textarea.id = textareaId;
-	textarea.name = name;
-	textarea.value = value;
-	textarea.required = true;
-
-	field.append(label, textarea);
-	return field;
 }
 
 export function CandidateEditForm(candidate: Candidate, actions: CandidateEditFormActions): HTMLFormElement {
@@ -60,31 +19,17 @@ export function CandidateEditForm(candidate: Candidate, actions: CandidateEditFo
 
 	form.append(
 		title,
-		createInputField(candidate.id, "Nome", "name", candidate.name),
-		createInputField(candidate.id, "E-mail", "email", candidate.email, "email"),
-		createInputField(candidate.id, "Estado", "state", candidate.state),
-		createInputField(candidate.id, "CEP", "cepCode", candidate.cepCode),
-		createInputField(candidate.id, "CPF", "cpf", candidate.cpf),
-		createInputField(candidate.id, "Idade", "age", String(candidate.age), "number"),
-		createInputField(candidate.id, "Competências separadas por vírgula", "skills", candidate.skills.join(", ")),
-		createTextareaField(candidate.id, "Descrição", "description", candidate.description)
+		createEditInputField(candidate.id, "Nome", "name", candidate.name),
+		createEditInputField(candidate.id, "E-mail", "email", candidate.email, "email"),
+		createEditInputField(candidate.id, "Estado", "state", candidate.state),
+		createEditInputField(candidate.id, "CEP", "cepCode", candidate.cepCode),
+		createEditInputField(candidate.id, "CPF", "cpf", candidate.cpf),
+		createEditInputField(candidate.id, "Idade", "age", String(candidate.age), "number"),
+		createEditInputField(candidate.id, "Competências separadas por vírgula", "skills", candidate.skills.join(", ")),
+		createEditTextareaField(candidate.id, "Descrição", "description", candidate.description)
 	);
 
-	const actionsContainer = document.createElement("div");
-	actionsContainer.classList.add("candidate-edit-actions");
-
-	const saveButton = document.createElement("button");
-	saveButton.type = "submit";
-	saveButton.textContent = "Salvar";
-
-	const cancelButton = document.createElement("button");
-	cancelButton.type = "button";
-	cancelButton.textContent = "Cancelar";
-
-	cancelButton.addEventListener("click", actions.onCancel);
-
-	actionsContainer.append(saveButton, cancelButton);
-	form.append(actionsContainer);
+	form.append(createEditFormActions(actions.onCancel, "candidate-edit-actions"));
 
 	form.addEventListener("submit", (event) => {
 		event.preventDefault();
