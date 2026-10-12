@@ -26,7 +26,12 @@ export class LinketinderApp {
 	}
 
 	private save<T>(key: string, data: T[]): void {
-		localStorage.setItem(key, JSON.stringify(data));
+		try {
+			const serializedData = JSON.stringify(data)
+			localStorage.setItem(key,serializedData);
+		} catch (error) {
+			console.log(`Falha ao armazenar item:`, error)
+		}
 	}
 
 	constructor() {
