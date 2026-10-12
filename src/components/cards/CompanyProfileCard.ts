@@ -1,4 +1,4 @@
-import type { Company } from "../models/Company";
+import type { Company } from "../../models/Company";
 import "./CompanyProfileCard.css";
 
 export function CompanyProfileCard(company: Company): HTMLElement {

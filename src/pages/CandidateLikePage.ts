@@ -1,5 +1,5 @@
 import { app } from "../main";
-import "../components/LikeForm.css";
+import "../components/forms/LikeForm.css";
 
 function createSelectField(
 	labelText: string,

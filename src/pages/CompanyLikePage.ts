@@ -1,5 +1,5 @@
 import { app } from "../main";
-import "../components/LikeForm.css";
+import "../components/forms/LikeForm.css";
 
 function createSelect(labelText: string, name: string): HTMLSelectElement {
 	const select = document.createElement("select");

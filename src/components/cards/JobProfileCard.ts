@@ -1,4 +1,4 @@
-import type { Job } from "../models/Job";
+import type { Job } from "../../models/Job";
 import "./JobProfileCard.css";
 
 interface JobCardActions {

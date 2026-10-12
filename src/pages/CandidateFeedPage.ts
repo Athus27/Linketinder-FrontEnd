@@ -1,8 +1,7 @@
-// src/pages/CandidateFeedPage.ts
 import { app } from "../main";
-import { CandidateProfileCard } from "../components/CandidateProfileCard";
-import { CandidateEditForm } from "../components/CandidateEditForm";
-import { updateInfoCounters } from "../components/InfoSection";
+import { CandidateProfileCard } from "../components/cards/CandidateProfileCard";
+import { CandidateEditForm } from "../components/forms/CandidateEditForm";
+import { updateInfoCounters } from "../components/layout/InfoSection";
 import "./CandidateFeedPage.css";
 import { CompanyLikePage } from "./CompanyLikePage";
 import { changePage } from "../renderAll";

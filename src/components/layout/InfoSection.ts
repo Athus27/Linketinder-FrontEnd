@@ -1,6 +1,6 @@
 // src/components/InfoSection.ts
 import "./InfoSection.css";
-import { app } from "../main";
+import { app } from "../../main";
 
 export function InfoSection(): HTMLElement {
 	const section = document.createElement("section");

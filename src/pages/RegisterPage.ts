@@ -1,5 +1,5 @@
 import { UserType } from "./../types/UserType";
-import { createUserForm } from "../components/UserForm";
+import { createUserForm } from "../components/forms/UserForm";
 import "./RegisterPage.css";
 
 export function RegisterPage(type?: UserType): HTMLElement {

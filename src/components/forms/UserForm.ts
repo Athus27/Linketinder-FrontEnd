@@ -1,11 +1,9 @@
-import { UserType } from './../types/UserType';
-import { app } from "../main";
-import { Candidate } from "../models/Candidate";
-import { Company } from "../models/Company";
-import { updateInfoCounters } from "./InfoSection";
+import { UserType } from "../../types/UserType";
+import { app } from "../../main";
+import { Candidate } from "../../models/Candidate";
+import { Company } from "../../models/Company";
+import { updateInfoCounters } from "../layout/InfoSection";
 import "./UserForm.css";
-
-
 
 function createInput(labelText: string, name: string, type = "text"): HTMLDivElement {
 	const field = document.createElement("div");

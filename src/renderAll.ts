@@ -1,5 +1,5 @@
-import { Header } from "./components/Header";
-import { InfoSection } from "./components/InfoSection";
+import { Header } from "./components/layout/Header";
+import { InfoSection } from "./components/layout/InfoSection";
 import { RegisterPage } from "./pages/RegisterPage";
 import { CandidateFeedPage } from "./pages/CandidateFeedPage";
 import { CompanyFeedPage } from "./pages/CompanyFeedPage";
@@ -7,7 +7,7 @@ import { JobFeedPage } from "./pages/JobFeedPage";
 import { JobRegisterPage } from "./pages/JobRegisterPage";
 import { CandidateLikePage } from "./pages/CandidateLikePage";
 import { CompanyLikePage } from "./pages/CompanyLikePage";
-import { destroyCompetenceGraphs } from "./components/CompetenceGraph";
+import { destroyCompetenceGraphs } from "./components/charts/CompetenceGraph";
 import { GraphSkillsPage } from "./pages/GraphSkillsPage";
 
 export function renderAll(): void {

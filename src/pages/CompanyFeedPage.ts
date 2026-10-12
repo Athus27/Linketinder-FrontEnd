@@ -1,5 +1,5 @@
 import { app } from "../main";
-import { CompanyProfileCard } from "../components/CompanyProfileCard";
+import { CompanyProfileCard } from "../components/cards/CompanyProfileCard";
 import "./CompanyFeedPage.css";
 
 export function CompanyFeedPage(): HTMLElement {

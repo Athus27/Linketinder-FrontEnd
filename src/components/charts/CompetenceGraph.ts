@@ -1,5 +1,6 @@
-import type { Job } from '../models/Job';
-import type { Candidate } from '../models/Candidate';
+// src/models
+import type { Job } from '../../models/Job';
+import type { Candidate } from '../../models/Candidate';
 import Chart from 'chart.js/auto';
 import { countCompetences } from './competenceCounts';
 

@@ -1,5 +1,5 @@
-import type { Job } from "../models/Job";
-import type { CreateJobInput } from "../types/EntityInputs";
+import type { Job } from "../../models/Job";
+import type { CreateJobInput } from "../../types/EntityInputs";
 import "./JobEditForm.css";
 
 interface JobEditFormActions {

@@ -1,4 +1,4 @@
-import { CompetenceGraph, destroyCompetenceGraphs } from '../components/CompetenceGraph';
+import { CompetenceGraph, destroyCompetenceGraphs } from '../components/charts/CompetenceGraph';
 import { app } from '../main';
 import './GraphSkillsPage.css';
 

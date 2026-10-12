@@ -1,4 +1,4 @@
-import type { Candidate } from "../models/Candidate";
+import type { Candidate } from "../../models/Candidate";
 import "./CandidateProfileCard.css";
 
 interface CandidateCardActions {

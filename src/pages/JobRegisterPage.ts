@@ -1,5 +1,5 @@
 import { app } from "../main";
-import { JobForm } from "../components/JobForm";
+import { JobForm } from "../components/forms/JobForm";
 import "./JobRegisterPage.css";
 
 export function JobRegisterPage(): HTMLElement {

@@ -1,7 +1,7 @@
 import { app } from "../main";
-import { updateInfoCounters } from "../components/InfoSection";
-import { JobEditForm } from "../components/JobEditForm";
-import { JobProfileCard } from "../components/JobProfileCard";
+import { updateInfoCounters } from "../components/layout/InfoSection";
+import { JobEditForm } from "../components/forms/JobEditForm";
+import { JobProfileCard } from "../components/cards/JobProfileCard";
 import "./JobFeedPage.css";
 import { CandidateLikePage } from "./CandidateLikePage";
 import { changePage } from "../renderAll";
@@ -32,35 +32,39 @@ export function JobFeedPage(): HTMLElement {
 
 		jobs.forEach((job) => {
 			if (job.id === editingJobId) {
-				feed.appendChild(JobEditForm(job, {
-					onSave: (data) => {
-						if (!app.updateJob(job.id, data)) return;
-						editingJobId = null;
-						renderJobs();
-					},
-					onCancel: () => {
-						editingJobId = null;
-						renderJobs();
-					}
-				}));
+				feed.appendChild(
+					JobEditForm(job, {
+						onSave: (data) => {
+							if (!app.updateJob(job.id, data)) return;
+							editingJobId = null;
+							renderJobs();
+						},
+						onCancel: () => {
+							editingJobId = null;
+							renderJobs();
+						}
+					})
+				);
 				return;
 			}
 
-			feed.appendChild(JobProfileCard(job, {
-				onEdit: (jobId) => {
-					editingJobId = jobId;
-					renderJobs();
-				},
-				onDelete: (jobId) => {
-					if (!window.confirm(`Deseja excluir ${job.title}?`)) return;
-					app.removeJob(jobId);
-					updateInfoCounters();
-					renderJobs();
-				},
-				onLike: (jobId) => {
-					changePage(CandidateLikePage(jobId));
-				}
-			}));
+			feed.appendChild(
+				JobProfileCard(job, {
+					onEdit: (jobId) => {
+						editingJobId = jobId;
+						renderJobs();
+					},
+					onDelete: (jobId) => {
+						if (!window.confirm(`Deseja excluir ${job.title}?`)) return;
+						app.removeJob(jobId);
+						updateInfoCounters();
+						renderJobs();
+					},
+					onLike: (jobId) => {
+						changePage(CandidateLikePage(jobId));
+					}
+				})
+			);
 		});
 	}
 

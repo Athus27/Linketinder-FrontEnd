@@ -1,8 +1,8 @@
-import { app } from "../main";
-import type { Company } from "../models/Company";
-import { Job } from "../models/Job";
-import { updateInfoCounters } from "./InfoSection";
-import { createSkillsInput } from "./UserForm";
+import { app } from "../../main";
+import type { Company } from "../../models/Company";
+import { Job } from "../../models/Job";
+import { updateInfoCounters } from "../layout/InfoSection";
+import { createSkillsInput } from "../forms/UserForm";
 import "./JobForm.css";
 
 function createInput(labelText: string, name: string): HTMLDivElement {
@@ -81,14 +81,7 @@ export function JobForm(companies: Company[]): HTMLFormElement {
 	submitButton.type = "submit";
 	submitButton.textContent = "Cadastrar vaga";
 
-	form.append(
-		title,
-		createCompanySelect(companies),
-		createInput("Título", "title"),
-		descriptionField,
-		createSkillsInput(),
-		submitButton
-	);
+	form.append(title, createCompanySelect(companies), createInput("Título", "title"), descriptionField, createSkillsInput(), submitButton);
 
 	form.addEventListener("submit", (event) => {
 		event.preventDefault();
