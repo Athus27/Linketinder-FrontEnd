@@ -17,20 +17,20 @@ export class LinketinderApp {
 			return [];
 		}
 
-		try{
+		try {
 			return JSON.parse(storedData) as T[];
-		}catch (error){
-			console.log(`Falha ao decodificar JSON para chave ${key}:`,error)
-			return []
+		} catch (error) {
+			console.log(`Falha ao decodificar JSON para chave ${key}:`, error);
+			return [];
 		}
 	}
 
 	private save<T>(key: string, data: T[]): void {
 		try {
-			const serializedData = JSON.stringify(data)
-			localStorage.setItem(key,serializedData);
+			const serializedData = JSON.stringify(data);
+			localStorage.setItem(key, serializedData);
 		} catch (error) {
-			console.log(`Falha ao armazenar item:`, error)
+			console.log(`Falha ao armazenar item:`, error);
 		}
 	}
 
@@ -50,11 +50,13 @@ export class LinketinderApp {
 		const candidateIndex = this.candidates.findIndex((candidate) => candidate.id === candidateId);
 
 		if (candidateIndex === -1) {
+			console.log(`Id:${candidateId} do candidato não encontrado`)
 			return false;
 		}
 
 		this.candidates.splice(candidateIndex, 1);
 		this.save("candidates", this.candidates);
+
 		this.likes = this.likes.filter((like) => like.candidateId !== candidateId);
 		this.save("likes", this.likes);
 
