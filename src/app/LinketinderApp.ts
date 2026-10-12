@@ -46,11 +46,15 @@ export class LinketinderApp {
 		this.save("candidates", this.candidates);
 	}
 
+	private getCandidateIndex(candidateId: string):number {
+		 return this.candidates.findIndex((candidate) => candidate.id === candidateId);
+	}
+
 	public removeCandidate(candidateId: string): boolean {
-		const candidateIndex = this.candidates.findIndex((candidate) => candidate.id === candidateId);
+		const candidateIndex = this.getCandidateIndex(candidateId)
 
 		if (candidateIndex === -1) {
-			console.log(`Id:${candidateId} do candidato não encontrado`)
+			console.log(`Id:${candidateId} do candidato não encontrado`);
 			return false;
 		}
 
@@ -64,13 +68,15 @@ export class LinketinderApp {
 	}
 
 	public updateCandidate(candidateId: string, data: CreateCandidateInput): boolean {
-		const candidate = this.candidates.find((currentCandidate) => currentCandidate.id === candidateId);
+		const candidateIndex = this.getCandidateIndex(candidateId)
 
-		if (!candidate) {
+		if (candidateIndex===-1) {
+			console.log(`Id:${candidateId} do candidato não encontrado`)
 			return false;
 		}
 
-		Object.assign(candidate, data);
+		// Atualiza instância existente com os dados novos
+		Object.assign(this.candidates[candidateIndex],data)
 		this.save("candidates", this.candidates);
 
 		return true;
