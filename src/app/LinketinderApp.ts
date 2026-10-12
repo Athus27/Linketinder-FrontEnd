@@ -46,12 +46,12 @@ export class LinketinderApp {
 		this.save("candidates", this.candidates);
 	}
 
-	private getCandidateIndex(candidateId: string):number {
-		 return this.candidates.findIndex((candidate) => candidate.id === candidateId);
+	private getCandidateIndex(candidateId: string): number {
+		return this.candidates.findIndex((candidate) => candidate.id === candidateId);
 	}
 
 	public removeCandidate(candidateId: string): boolean {
-		const candidateIndex = this.getCandidateIndex(candidateId)
+		const candidateIndex = this.getCandidateIndex(candidateId);
 
 		if (candidateIndex === -1) {
 			console.log(`Id:${candidateId} do candidato não encontrado`);
@@ -68,15 +68,15 @@ export class LinketinderApp {
 	}
 
 	public updateCandidate(candidateId: string, data: CreateCandidateInput): boolean {
-		const candidateIndex = this.getCandidateIndex(candidateId)
+		const candidateIndex = this.getCandidateIndex(candidateId);
 
-		if (candidateIndex===-1) {
-			console.log(`Id:${candidateId} do candidato não encontrado`)
+		if (candidateIndex === -1) {
+			console.log(`Id:${candidateId} do candidato não encontrado`);
 			return false;
 		}
 
 		// Atualiza instância existente com os dados novos
-		Object.assign(this.candidates[candidateIndex],data)
+		Object.assign(this.candidates[candidateIndex], data);
 		this.save("candidates", this.candidates);
 
 		return true;
@@ -100,8 +100,12 @@ export class LinketinderApp {
 		return true;
 	}
 
+	public findJobIndex(jobId: string) {
+		return this.jobs.findIndex((job) => job.id === jobId);
+	}
+
 	public removeJob(jobId: string): boolean {
-		const jobIndex = this.jobs.findIndex((job) => job.id === jobId);
+		const jobIndex = this.findJobIndex(jobId);
 
 		if (jobIndex === -1) return false;
 
@@ -114,7 +118,9 @@ export class LinketinderApp {
 	}
 
 	public updateJob(jobId: string, data: CreateJobInput): boolean {
-		const job = this.jobs.find((currentJob) => currentJob.id === jobId);
+		const jobIndex = this.findJobIndex(jobId);
+		const job = this.jobs[jobIndex]
+		
 		const companyExists = this.companies.some((company) => company.id === data.companyId);
 
 		if (!job || !companyExists) return false;
