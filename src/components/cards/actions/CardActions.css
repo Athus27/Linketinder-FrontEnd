@@ -1,0 +1,8 @@
+.card-action {
+	border: none;
+	padding: 6px;
+}
+
+.card-action--delete img {
+	filter: brightness(0);
+}

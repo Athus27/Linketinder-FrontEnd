@@ -1,4 +1,5 @@
 import type { Candidate } from "../../models/Candidate";
+import { createCardActions } from "./actions/CardActions";
 import "./CandidateProfileCard.css";
 
 interface CandidateCardActions {
@@ -7,7 +8,11 @@ interface CandidateCardActions {
 	onLike: (candidateId: string) => void;
 }
 
-export function CandidateProfileCard(candidate: Candidate, actions: CandidateCardActions, anonymous = false): HTMLElement {
+export function CandidateProfileCard(
+	candidate: Candidate,
+	actions: CandidateCardActions,
+	anonymous = false
+): HTMLElement {
 	const article = document.createElement("article");
 	article.classList.add("candidate-profile");
 
@@ -26,59 +31,23 @@ export function CandidateProfileCard(candidate: Candidate, actions: CandidateCar
 	const skillsContainer = document.createElement("div");
 	skillsContainer.classList.add("candidate-skills");
 
-	//CRUD options
-	const optionsCandidate = document.createElement("div");
-	optionsCandidate.classList.add("candidate-options");
-
-	const editButton = document.createElement("button");
-	editButton.type = "button";
-	editButton.classList.add("candidate-action");
-	editButton.ariaLabel = `Editar ${candidate.name}`;
-
-	const editIcon = document.createElement("img");
-	editIcon.src = "/assets/icons/edit.svg";
-	editIcon.alt = "";
-
-	editButton.appendChild(editIcon);
-	editButton.addEventListener("click", () => {
-		actions.onEdit(candidate.id);
-	});
-
-	const deleteButton = document.createElement("button");
-	deleteButton.type = "button";
-	deleteButton.classList.add("candidate-action", "delete-candidate");
-	deleteButton.ariaLabel = `Excluir ${candidate.name}`;
-
-	const deleteIcon = document.createElement("img");
-	deleteIcon.classList.add("delete-icon");
-	deleteIcon.src = "/assets/icons/delete.svg";
-	deleteIcon.alt = "";
-
-	deleteButton.appendChild(deleteIcon);
-	deleteButton.addEventListener("click", () => {
-		actions.onDelete(candidate.id);
-	});
-
-	const likeButton = document.createElement("button");
-	likeButton.type = "button";
-	likeButton.classList.add("candidate-action");
-	likeButton.ariaLabel = anonymous ? "Curtir candidato" : `Curtir ${candidate.name}`;
-
-	const likeIcon = document.createElement("img");
-	likeIcon.src = "/assets/icons/like.svg";
-	likeIcon.alt = "";
-
-	likeButton.appendChild(likeIcon);
-	likeButton.addEventListener("click", () => {
-		actions.onLike(candidate.id);
-	});
+	let optionsCandidate: HTMLDivElement;
 
 	if (anonymous) {
-		optionsCandidate.append(likeButton);
+		optionsCandidate = createCardActions({
+			label: "candidato",
+			className: "candidate-options",
+			onLike: () => actions.onLike(candidate.id)
+		});
 	} else {
-		optionsCandidate.append(editButton, deleteButton, likeButton);
+		optionsCandidate = createCardActions({
+			label: candidate.name,
+			className: "candidate-options",
+			onEdit: () => actions.onEdit(candidate.id),
+			onDelete: () => actions.onDelete(candidate.id),
+			onLike: () => actions.onLike(candidate.id)
+		});
 	}
-
 	candidate.skills.forEach((skill) => {
 		const skillTag = document.createElement("span");
 		skillTag.classList.add("candidate-skill");
@@ -91,6 +60,7 @@ export function CandidateProfileCard(candidate: Candidate, actions: CandidateCar
 
 	if (!anonymous) {
 		article.append(location);
+		article.append(optionsCandidate);
 	}
 
 	article.append(description, skillsTitle, skillsContainer, optionsCandidate);
