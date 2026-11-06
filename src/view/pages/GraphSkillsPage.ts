@@ -1,8 +1,12 @@
 import { CompetenceGraph, destroyCompetenceGraphs } from '../components/charts/CompetenceGraph';
-import { app } from '../../main';
+import type { Job } from '../../models/Job';
+import type { Candidate } from '../../models/Candidate';
 import './GraphSkillsPage.css';
 
-export function GraphSkillsPage(): HTMLElement {
+export function GraphSkillsPage(
+    buscarVagas: () => Promise<Job[]>,
+    buscarCandidatos: () => Promise<Candidate[]>
+): HTMLElement {
     const main = document.createElement('main');
     main.classList.add('graph-skills');
 
@@ -12,14 +16,11 @@ export function GraphSkillsPage(): HTMLElement {
     description.textContent = 'Selecione uma vaga para ver quantos candidatos cadastrados possuem cada competência exigida.';
     main.append(title, description);
 
-    const jobs = app.getJobs();
+    let jobs: Job[] = [];
+    let candidates: Candidate[] = [];
     const message = document.createElement('p');
     message.setAttribute('aria-live', 'polite');
-    if (jobs.length === 0) {
-        message.textContent = 'Cadastre uma vaga para gerar o gráfico.';
-        main.appendChild(message);
-        return main;
-    }
+    message.textContent = 'Carregando vagas e competências dos candidatos...';
 
     const label = document.createElement('label');
     label.htmlFor = 'job-select';
@@ -28,7 +29,7 @@ export function GraphSkillsPage(): HTMLElement {
     jobSelect.id = 'job-select';
     jobSelect.name = 'job-select';
     jobSelect.appendChild(new Option('Selecione uma vaga', ''));
-    jobs.forEach((job) => jobSelect.appendChild(new Option(job.title, job.id)));
+    jobSelect.disabled = true;
 
     const generateButton = document.createElement('button');
     generateButton.type = 'button';
@@ -39,12 +40,11 @@ export function GraphSkillsPage(): HTMLElement {
     function generateGraph(): void {
         destroyCompetenceGraphs(graphContainer);
         graphContainer.replaceChildren();
-        const job = app.getJobs().find((currentJob) => currentJob.id === jobSelect.value);
+        const job = jobs.find((currentJob) => currentJob.id === jobSelect.value);
         generateButton.disabled = !job;
         message.textContent = '';
         if (!job) return;
 
-        const candidates = app.getCandidates();
         if (candidates.length === 0) {
             message.textContent = 'Não há candidatos cadastrados. As competências terão contagem zero.';
         }
@@ -54,5 +54,16 @@ export function GraphSkillsPage(): HTMLElement {
     jobSelect.addEventListener('change', generateGraph);
     generateButton.addEventListener('click', generateGraph);
     main.append(label, jobSelect, generateButton, message, graphContainer);
+    async function loadData(): Promise<void> {
+        try {
+            [jobs, candidates] = await Promise.all([buscarVagas(), buscarCandidatos()]);
+            jobs.forEach((job) => jobSelect.appendChild(new Option(job.title, job.id)));
+            jobSelect.disabled = jobs.length === 0;
+            message.textContent = jobs.length === 0 ? 'Cadastre uma vaga para gerar o gráfico.' : '';
+        } catch {
+            message.textContent = 'Não foi possível carregar os dados do gráfico. Tente novamente.';
+        }
+    }
+    void loadData();
     return main;
 }

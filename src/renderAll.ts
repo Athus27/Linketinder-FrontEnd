@@ -102,7 +102,10 @@ export function renderAll(): void {
 			changePage(CompanyLikePage());
 		},
 		onViewCompetenceGraph: (): void => {
-			changePage(GraphSkillsPage());
+            changePage(GraphSkillsPage(
+                () => jobController.getVagas(),
+                () => candidateController.getCandidatos()
+            ));
 		}
 	};
 

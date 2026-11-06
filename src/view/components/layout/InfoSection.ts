@@ -1,6 +1,13 @@
 // src/components/InfoSection.ts
 import "./InfoSection.css";
-import { app } from "../../../main";
+import { CompanyService } from "../../../services/CompanyService";
+import { CandidateService } from "../../../services/CandidateService";
+import { JobService } from "../../../services/JobService";
+
+const companyService = new CompanyService();
+const candidateService = new CandidateService();
+const jobService = new JobService();
+let latestUpdate = 0;
 
 export function InfoSection(): HTMLElement {
 	const section = document.createElement("section");
@@ -26,23 +33,21 @@ export function InfoSection(): HTMLElement {
 	return section;
 }
 
-export function updateInfoCounters(): void {
-	const companyCounter = document.querySelector("#company-count");
-	const candidateCounter = document.querySelector("#candidate-count");
-	const jobCounter = document.querySelector("#job-count");
-
-	if (companyCounter) {
-		companyCounter.textContent =
-			`Empresas cadastradas: ${app.getCompanies().length}`;
-	}
-
-	if (candidateCounter) {
-		candidateCounter.textContent =
-			`Candidatos cadastrados: ${app.getCandidates().length}`;
-	}
-
-	if (jobCounter) {
-		jobCounter.textContent =
-			`Vagas cadastradas: ${app.getJobs().length}`;
-	}
+export async function updateInfoCounters(): Promise<void> {
+ const update = ++latestUpdate;
+ const counters = [
+  { element: document.querySelector("#company-count"), label: "Empresas cadastradas", load: () => companyService.getEmpresas() },
+  { element: document.querySelector("#candidate-count"), label: "Candidatos cadastrados", load: () => candidateService.getCandidatos() },
+  { element: document.querySelector("#job-count"), label: "Vagas cadastradas", load: () => jobService.getVagas() },
+ ];
+ await Promise.all(counters.map(async ({ element, label, load }) => {
+  if (!element) return;
+  element.textContent = `${label}: carregando...`;
+  try {
+   const records = await load();
+   if (update === latestUpdate) element.textContent = `${label}: ${records.length}`;
+  } catch {
+   if (update === latestUpdate) element.textContent = `${label}: indisponível`;
+  }
+ }));
 }
