@@ -1,7 +1,9 @@
 import type { UserType } from "./UserType";
 
 export interface LoginResponse {
-	id: number | string;
+	token: string;
+	id: number;
 	nome: string;
 	tipo: UserType;
+	idEmpresa?: number;
 }

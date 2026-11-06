@@ -26,8 +26,9 @@ export interface CreateCompanyInput {
 }
 
 export interface CreateJobInput {
-	companyId: string;
+	companyId?: string;
 	title: string;
 	description: string;
+	localVaga?: string;
 	skills: string[];
 }

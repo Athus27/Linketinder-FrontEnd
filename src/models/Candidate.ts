@@ -4,6 +4,7 @@ export class Candidate extends User {
 	skills: string[];
 	cpf: string;
   birthDate: string;
+  formation: string;
 
 	constructor(
 		name: string,
@@ -13,12 +14,14 @@ export class Candidate extends User {
 		email: string,
 		state: string,
 		cepCode: string,
-		skills: string[]
+		skills: string[],
+		formation = ""
 	) {
 		super(name, description, email, state, cepCode);
 		this.skills = skills;
 		this.cpf = cpf;
 		this.birthDate = birthDate;
+		this.formation = formation;
 	}
 
 	public getSkills(): string[] {

@@ -1,10 +1,15 @@
 export interface CandidateResponse {
   id: number;
-  nome: string;
-  cpf: string;
-  dataNascimento: string;
-  descricao: string;
-  email: string;
-  cep: string;
   competencias: string[];
+  formacao: string;
+  nome?: string;
+  sobrenome?: string;
+  email?: string;
+  descricao?: string;
+}
+
+export interface LegacyCandidateResponse extends CandidateResponse {
+  cpf?: string;
+  dataNascimento?: string;
+  cep?: string;
 }

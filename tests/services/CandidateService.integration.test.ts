@@ -1,9 +1,17 @@
-import { it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { CandidateService } from "../../src/services/CandidateService";
 
-it("mostra os candidatos retornados pelo backend real", async () => {
-  const service = new CandidateService();
-  const candidatos = await service.getCandidatos();
+const enabled = import.meta.env.VITE_RUN_API_INTEGRATION === "true";
 
-  console.log(JSON.stringify(candidatos, null, 2));
+describe.skipIf(!enabled)("CandidateService API integration (opt-in)", () => {
+  it("recebe somente a projeção anônima permitida", async () => {
+    const candidatos = await new CandidateService().getCandidatos();
+    for (const candidato of candidatos) {
+      expect(candidato.cpf).toBe("");
+      expect(candidato.birthDate).toBe("");
+      expect(candidato.cepCode).toBe("");
+      expect(candidato.name).toMatch(/^Candidato #\d+$/);
+      expect(candidato.email).toBe("");
+    }
+  });
 });

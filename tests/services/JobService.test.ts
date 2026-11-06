@@ -7,7 +7,7 @@ afterEach(() => { vi.unstubAllGlobals(); vi.unstubAllEnvs(); });
 describe("JobService", () => {
   it("converte a resposta da API preservando os IDs", async () => {
     vi.stubEnv("VITE_API_URL", "http://localhost:8080");
-    const fetchSimulado = vi.fn().mockResolvedValue(new Response(JSON.stringify([{ id: 9, idEmpresa: 7, empresa: "Empresa teste", titulo: "Dev", descricao: "Descrição", localVaga: "Remoto", competencias: ["Groovy"] }]), { status: 200 }));
+    const fetchSimulado = vi.fn().mockResolvedValue(new Response(JSON.stringify([{ id: 9, idEmpresa: 7, titulo: "Dev", descricao: "Descrição", competencias: ["Groovy"] }]), { status: 200 }));
     vi.stubGlobal("fetch", fetchSimulado);
     const service = new JobService();
 

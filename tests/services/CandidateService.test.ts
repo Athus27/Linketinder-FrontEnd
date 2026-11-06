@@ -56,7 +56,7 @@ describe("CandidateService", () => {
     );
   });
 
-  it("retorna false quando a API responde com erro", async () => {
+  it("expõe o status de validação sem fallback local", async () => {
     //given
     const candidateService = new CandidateService();
     const candidato = {
@@ -77,10 +77,7 @@ describe("CandidateService", () => {
     vi.stubGlobal("fetch", fetchSimulado);
 
     //when
-    const result = await candidateService.cadastrarCandidato(candidato);
-
-    //then
-    expect(result).toBe(false);
+    await expect(candidateService.cadastrarCandidato(candidato)).rejects.toMatchObject({ status: 400 });
   });
 
   it("converte a lista da API em instâncias de Candidate preservando os dados e o ID", async () => {
@@ -89,11 +86,7 @@ describe("CandidateService", () => {
     const candidatos: CandidateResponse[] = [{
       id: 42,
       nome: "John Doe",
-      cpf: "12345678901",
-      dataNascimento: "1990-01-01",
-      descricao: "Descrição do candidato",
-      email: "teste@email.com",
-      cep: "12345678",
+      formacao: "Tecnologia",
       competencias: ["Groovy", "TypeScript"],
     }];
     const fetchSimulado = vi.fn().mockResolvedValue(
@@ -109,13 +102,14 @@ describe("CandidateService", () => {
     expect(result[0]).toBeInstanceOf(Candidate);
     expect(result[0]).toMatchObject({
       id: "42",
-      name: "John Doe",
-      cpf: "12345678901",
-      birthDate: "1990-01-01",
-      description: "Descrição do candidato",
-      email: "teste@email.com",
+      name: "Candidato #42",
+      cpf: "",
+      birthDate: "",
+      description: "",
+      email: "",
       state: "",
-      cepCode: "12345678",
+      cepCode: "",
+      formation: "Tecnologia",
       skills: ["Groovy", "TypeScript"],
     });
     expect(result[0].getSkills()).toEqual(["Groovy", "TypeScript"]);
@@ -142,7 +136,7 @@ describe("CandidateService", () => {
     const service = new CandidateService();
 
     // when / then
-    await expect(service.getCandidatos()).rejects.toThrow("Erro ao buscar candidatos: HTTP 500");
+    await expect(service.getCandidatos()).rejects.toMatchObject({ status: 500 });
   });
 
   it("envia DELETE para o ID e retorna true quando a API confirma a exclusão", async () => {
@@ -158,13 +152,11 @@ describe("CandidateService", () => {
     });
   });
 
-  it("retorna false quando a API rejeita a exclusão", async () => {
+  it("propaga a rejeição da exclusão", async () => {
     const service = new CandidateService();
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(null, { status: 404 })));
 
-    const resultado = await service.excluirCandidato("999");
-
-    expect(resultado).toBe(false);
+    await expect(service.excluirCandidato("999")).rejects.toMatchObject({ status: 404 });
   });
 
   it("propaga falha de conexão ao excluir candidato", async () => {

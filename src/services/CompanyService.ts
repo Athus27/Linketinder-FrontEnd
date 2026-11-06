@@ -1,37 +1,29 @@
 import { Company } from "../models/Company";
 import type { CompanyResponse } from "../types/CompanyResponse";
 import type { CreateCompanyInput } from "../types/EntityInputs";
+import { sharedSessionService, SessionService } from "./SessionService";
 
 export class CompanyService {
   private readonly url = `${import.meta.env.VITE_API_URL}/api/empresas`;
 
+  constructor(private readonly session: SessionService = sharedSessionService) {}
+
   async cadastrarEmpresa(empresa: CreateCompanyInput): Promise<boolean> {
-    const response = await fetch(this.url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+    const response = await this.session.requestResponse(this.url, {
+      method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        nome: empresa.name,
-        cnpj: empresa.cnpj,
-        descricao: empresa.description,
-        email: empresa.email,
-        senha: empresa.password,
-        pais: empresa.country,
-        cep: empresa.cepCode,
+        nome: empresa.name, cnpj: empresa.cnpj, descricao: empresa.description,
+        email: empresa.email, senha: empresa.password, pais: empresa.country, cep: empresa.cepCode,
       }),
     });
-
     return response.status === 201;
   }
 
   async getEmpresas(): Promise<Company[]> {
-    const response = await fetch(this.url);
-    if (!response.ok) {
-      throw new Error(`Erro ao buscar empresas: HTTP ${response.status}`);
-    }
-    const dados: CompanyResponse[] = await response.json();
+    const dados = await this.session.request<CompanyResponse[]>(this.url);
     return dados.map((dado) => {
       const company = new Company(
-        dado.nome, dado.cnpj, dado.descricao, dado.email, "", dado.cep, dado.pais
+        `Empresa #${dado.id}`, "", "", "", "", "", "",
       );
       company.id = String(dado.id);
       return company;

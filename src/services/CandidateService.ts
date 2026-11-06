@@ -1,72 +1,47 @@
-import {CreateCandidateInput} from "../types/EntityInputs";
+import { CreateCandidateInput } from "../types/EntityInputs";
 import type { CandidateRequest } from "../types/CandidateRequest";
 import { Candidate } from "../models/Candidate";
 import type { CandidateResponse } from "../types/CandidateResponse";
+import { sharedSessionService, SessionService } from "./SessionService";
 
 export class CandidateService {
-  url: string;
+  readonly url: string;
 
-  constructor() {
+  constructor(private readonly session: SessionService = sharedSessionService) {
     this.url = `${import.meta.env.VITE_API_URL}/api/candidatos`;
   }
 
   async cadastrarCandidato(candidato: CreateCandidateInput): Promise<boolean> {
     const [ano, mes, dia] = candidato.birthDate.split("-");
     const dados: CandidateRequest = {
-      nome: candidato.name,
-      sobrenome: candidato.surname,
-      dataNascimento: `${dia}/${mes}/${ano}`,
-      cpf: candidato.cpf,
-      descricao: candidato.description,
-      email: candidato.email,
-      pais: candidato.country,
-      cep: candidato.cepCode,
-      senha: candidato.password,
+      nome: candidato.name, sobrenome: candidato.surname,
+      dataNascimento: `${dia}/${mes}/${ano}`, cpf: candidato.cpf,
+      descricao: candidato.description, email: candidato.email,
+      pais: candidato.country, cep: candidato.cepCode, senha: candidato.password,
       competencias: candidato.skills,
     };
-    const response = fetch(this.url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+    const response = await this.session.requestResponse(this.url, {
+      method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify(dados),
     });
-
-    const res = await response;
-    return res.ok;
+    return response.status === 201;
   }
 
   async getCandidatos(): Promise<Candidate[]> {
-    const response = await fetch(this.url);
-
-    if (!response.ok) {
-      throw new Error(`Erro ao buscar candidatos: HTTP ${response.status}`);
-    }
-
-    const dados: CandidateResponse[] = await response.json();
-
+    const dados = await this.session.request<CandidateResponse[]>(this.url);
     return dados.map((dado) => {
       const candidato = new Candidate(
-        dado.nome,
-        dado.cpf,
-        dado.dataNascimento,
-        dado.descricao,
-        dado.email,
-        "",
-        dado.cep,
-        dado.competencias
+        `Candidato #${dado.id}`, "",
+        "", "", "", "", "", dado.competencias,
+        dado.formacao || "",
       );
-
       candidato.id = String(dado.id);
       return candidato;
     });
   }
 
   async excluirCandidato(id: string): Promise<boolean> {
-    const response = await fetch(`${this.url}/${id}`, {
-      method: "DELETE",
-    });
-
-    return response.ok;
+    const response = await this.session.requestResponse(`${this.url}/${id}`, { method: "DELETE" });
+    return response.status === 204;
   }
 }

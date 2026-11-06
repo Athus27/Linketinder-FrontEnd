@@ -7,7 +7,7 @@ afterEach(() => { vi.unstubAllGlobals(); vi.unstubAllEnvs(); });
 describe("CompanyService", () => {
   it("converte a resposta da API preservando os IDs", async () => {
     vi.stubEnv("VITE_API_URL", "http://localhost:8080");
-    const fetchSimulado = vi.fn().mockResolvedValue(new Response(JSON.stringify([{ id: 7, nome: "Empresa teste", cnpj: "123", descricao: "Descrição", email: "teste@example.com", pais: "Brasil", cep: "12345" }]), { status: 200 }));
+    const fetchSimulado = vi.fn().mockResolvedValue(new Response(JSON.stringify([{ id: 7 }]), { status: 200 }));
     vi.stubGlobal("fetch", fetchSimulado);
     const service = new CompanyService();
 
@@ -16,7 +16,7 @@ describe("CompanyService", () => {
     expect(fetchSimulado).toHaveBeenCalledExactlyOnceWith("http://localhost:8080/api/empresas");
     expect(resultado).toHaveLength(1);
     expect(resultado[0]).toBeInstanceOf(Company);
-    expect(resultado[0]).toMatchObject({ id: "7", name: "Empresa teste", cnpj: "123", description: "Descrição", email: "teste@example.com", country: "Brasil", state: "", cepCode: "12345" });
+    expect(resultado[0]).toMatchObject({ id: "7", name: "Empresa #7", cnpj: "", description: "", email: "" });
   });
 
   it("retorna lista vazia quando a API retorna array vazio", async () => {
@@ -75,6 +75,6 @@ describe("CompanyService", () => {
     vi.stubEnv("VITE_API_URL", "http://localhost:8080");
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(null, { status: 409 })));
 
-    await expect(new CompanyService().cadastrarEmpresa({} as never)).resolves.toBe(false);
+    await expect(new CompanyService().cadastrarEmpresa({} as never)).rejects.toMatchObject({ status: 409 });
   });
 });
