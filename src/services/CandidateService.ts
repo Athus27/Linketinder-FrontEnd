@@ -30,9 +30,10 @@ export class CandidateService {
   async getCandidatos(): Promise<Candidate[]> {
     const dados = await this.session.request<CandidateResponse[]>(this.url);
     return dados.map((dado) => {
+      const contactAllowed = Boolean(dado.nome && dado.email);
       const candidato = new Candidate(
-        `Candidato #${dado.id}`, "",
-        "", "", "", "", "", dado.competencias,
+        contactAllowed ? dado.nome! : `Candidato #${dado.id}`, "",
+        "", contactAllowed ? dado.descricao || "" : "", contactAllowed ? dado.email! : "", "", "", dado.competencias,
         dado.formacao || "",
       );
       candidato.id = String(dado.id);

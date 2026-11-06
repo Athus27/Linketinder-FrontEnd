@@ -3,7 +3,10 @@ import { LoginService } from "../../services/LoginService";
 import type { AuthenticatedUser } from "../../types/UserType";
 import "../components/forms/UserForm.css";
 
-export function LoginPage(onAuthenticated: (user: AuthenticatedUser) => void): HTMLElement {
+export function LoginPage(
+  onAuthenticated: (user: AuthenticatedUser) => void,
+  onRegister?: (type: "candidate" | "company") => void,
+): HTMLElement {
 	const section = document.createElement("section");
 	section.className = "register-page";
 	const form = document.createElement("form");
@@ -36,6 +39,19 @@ export function LoginPage(onAuthenticated: (user: AuthenticatedUser) => void): H
 	submit.type = "submit";
 	submit.textContent = "Entrar";
 	form.append(title, emailLabel, email, passwordLabel, password, submit);
+	if (onRegister) {
+		const register = document.createElement("p");
+		register.textContent = "Ainda não tem cadastro?";
+		const candidate = document.createElement("button");
+		candidate.type = "button";
+		candidate.textContent = "Cadastrar candidato";
+		candidate.addEventListener("click", () => onRegister("candidate"));
+		const company = document.createElement("button");
+		company.type = "button";
+		company.textContent = "Cadastrar empresa";
+		company.addEventListener("click", () => onRegister("company"));
+		form.append(register, candidate, company);
+	}
 
 	form.addEventListener("submit", async (event) => {
 		event.preventDefault();

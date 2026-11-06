@@ -7,7 +7,7 @@ interface JobCardActions {
 	onLike: (jobId: string) => void;
 }
 
-export function JobProfileCard(job: Job, actions: JobCardActions): HTMLElement {
+export function JobProfileCard(job: Job, actions: JobCardActions, mode: "edit" | "like" | "none" = "edit"): HTMLElement {
 	const article = document.createElement("article");
 	article.classList.add("job-profile");
 
@@ -37,24 +37,35 @@ export function JobProfileCard(job: Job, actions: JobCardActions): HTMLElement {
 	editButton.type = "button";
 	editButton.classList.add("job-action");
 	editButton.ariaLabel = `Editar ${job.title}`;
-	editButton.innerHTML = '<img src="/assets/icons/edit.svg" alt="">';
+	const editIcon = document.createElement("img");
+	editIcon.src = "/assets/icons/edit.svg";
+	editIcon.alt = "";
+	editButton.appendChild(editIcon);
 	editButton.addEventListener("click", () => actions.onEdit(job.id));
 
 	const deleteButton = document.createElement("button");
 	deleteButton.type = "button";
 	deleteButton.classList.add("job-action");
 	deleteButton.ariaLabel = `Excluir ${job.title}`;
-	deleteButton.innerHTML = '<img class="delete-icon" src="/assets/icons/delete.svg" alt="">';
+	const deleteIcon = document.createElement("img");
+	deleteIcon.className = "delete-icon";
+	deleteIcon.src = "/assets/icons/delete.svg";
+	deleteIcon.alt = "";
+	deleteButton.appendChild(deleteIcon);
 	deleteButton.addEventListener("click", () => actions.onDelete(job.id));
 
 	const likeButton = document.createElement("button");
 	likeButton.type = "button";
 	likeButton.classList.add("job-action");
 	likeButton.ariaLabel = `Curtir ${job.title}`;
-	likeButton.innerHTML = '<img src="/assets/icons/like.svg" alt="">';
+	const likeIcon = document.createElement("img");
+	likeIcon.src = "/assets/icons/like.svg";
+	likeIcon.alt = "";
+	likeButton.appendChild(likeIcon);
 	likeButton.addEventListener("click", () => actions.onLike(job.id));
 
-	options.append(editButton, deleteButton, likeButton);
+	if (mode === "like") options.append(likeButton);
+	if (mode === "edit") options.append(editButton, deleteButton);
 	article.append(title, description, skillsTitle, skillsContainer, options);
 
 	return article;

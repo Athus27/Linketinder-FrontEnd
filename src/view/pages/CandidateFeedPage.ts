@@ -1,122 +1,50 @@
-import {app} from "../../main";
-import {CandidateProfileCard} from "../components/cards/CandidateProfileCard";
-import {CandidateEditForm} from "../components/forms/CandidateEditForm";
-import {updateInfoCounters} from "../components/layout/InfoSection";
+import { CandidateProfileCard } from "../components/cards/CandidateProfileCard";
+import type { Candidate } from "../../models/Candidate";
+import { sharedSessionService } from "../../services/SessionService";
+import { CompanyLikePage } from "./CompanyLikePage";
+import { changePage } from "../../renderAll";
 import "./CandidateFeedPage.css";
-import {CompanyLikePage} from "./CompanyLikePage";
-import {changePage} from "../../renderAll";
-
-import type {Candidate} from "../../models/Candidate";
 
 export function CandidateFeedPage(
   buscarCandidatos: () => Promise<Candidate[]>,
-  managementMode = false,
-  remoteManagement = false,
-  excluirCandidato?: (candidateId: string) => Promise<boolean>
+  ownProfile = false,
+  _remoteManagement = true,
+  excluirCandidato?: (id: string) => Promise<boolean>,
+  onOwnProfileDeleted?: () => void,
 ): HTMLElement {
   const section = document.createElement("section");
-  section.classList.add("candidate-feed-page");
-
+  section.className = "candidate-feed-page";
   const title = document.createElement("h1");
-  title.textContent = managementMode ? "Gerenciar candidatos" : "Candidatos disponíveis";
-
+  title.textContent = ownProfile ? "Meu perfil" : "Candidatos disponíveis";
   const feed = document.createElement("div");
-  feed.classList.add("candidate-feed");
-
-  let editingCandidateId: string | null = null;
-
-  // controla listagem e edição de candidatos
-  async function renderCandidates(): Promise<void> {
+  feed.className = "candidate-feed";
+  section.append(title, feed);
+  feed.textContent = "Carregando candidatos...";
+  void buscarCandidatos().then((candidates) => {
+    const ownId = sharedSessionService.getUser()?.id;
+    const visible = ownProfile ? candidates.filter((candidate) => candidate.id === ownId) : candidates;
     feed.replaceChildren();
-
-    const candidates = await buscarCandidatos()
-
-    if (candidates.length === 0) {
-      const emptyMessage = document.createElement("p");
-      emptyMessage.classList.add("candidate-feed-empty");
-      emptyMessage.textContent = "Nenhum candidato cadastrado.";
-
-      feed.appendChild(emptyMessage);
+    if (!visible.length) {
+      feed.textContent = ownProfile ? "Perfil não encontrado." : "Nenhum candidato cadastrado.";
       return;
     }
-
-    candidates.forEach((candidate) => {
-      if (managementMode && candidate.id === editingCandidateId) {
-        const editForm = CandidateEditForm(candidate, {
-          onSave: (data) => {
-            const updated = app.updateCandidate(candidate.id, data);
-
-            if (!updated) {
-              window.alert("Candidato não encontrado.");
-              return;
-            }
-
-            editingCandidateId = null;
-            renderCandidates();
-          },
-
-          onCancel: () => {
-            editingCandidateId = null;
-            renderCandidates();
-          }
-        });
-
-        feed.appendChild(editForm);
-        return;
-      }
-
-      const card = CandidateProfileCard(candidate, {
-        onEdit: (candidateId) => {
-          if (remoteManagement) {
-            window.alert("A edição de candidatos da API ainda não está integrada.");
-            return;
-          }
-          editingCandidateId = candidateId;
-          renderCandidates();
+    visible.forEach((candidate) => {
+      const contactAllowed = Boolean(candidate.name && candidate.email);
+      feed.appendChild(CandidateProfileCard(candidate, {
+      ...(ownProfile ? {
+        onDelete: (id: string) => {
+        if (!excluirCandidato || !window.confirm("Deseja excluir seu perfil?")) return;
+        void excluirCandidato(id).then((deleted) => {
+          if (!deleted) throw new Error("Exclusão não confirmada");
+          sharedSessionService.clear();
+          feed.textContent = "Perfil excluído.";
+          onOwnProfileDeleted?.();
+        }).catch(() => { feed.textContent = "Não foi possível excluir o perfil."; });
         },
-
-        onDelete: (candidateId) => {
-          const shouldDelete = window.confirm(`Deseja excluir ${candidate.name}?`);
-
-          if (!shouldDelete) return;
-
-          if (remoteManagement) {
-            if (!excluirCandidato) {
-              window.alert("A exclusão de candidatos da API ainda não está integrada.");
-              return;
-            }
-
-            void excluirCandidato(candidateId).then((deleted) => {
-              if (!deleted) {
-                window.alert("Não foi possível excluir o candidato. Tente novamente.");
-                return;
-              }
-
-              return renderCandidates();
-            }).catch((error) => {
-              console.error("Candidato excluído, mas não foi possível atualizar a lista:", error);
-              feed.textContent = "Candidato excluído, mas não foi possível atualizar a lista.";
-            });
-            return;
-          }
-
-          app.removeCandidate(candidateId);
-          updateInfoCounters();
-          renderCandidates();
-        },
-
-        onLike: (candidateId) => {
-          changePage(CompanyLikePage(candidateId));
-        }
-      }, !managementMode);
-
-      feed.appendChild(card);
+      } : {}),
+      ...(!ownProfile ? { onLike: (id: string) => changePage(CompanyLikePage(id)) } : {}),
+      }, ownProfile ? false : !contactAllowed));
     });
-  }
-
-  renderCandidates();
-
-  section.append(title, feed);
-
+  }).catch(() => { feed.textContent = "Não foi possível carregar os candidatos."; });
   return section;
 }

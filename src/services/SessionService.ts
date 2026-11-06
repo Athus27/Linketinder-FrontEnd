@@ -51,16 +51,17 @@ export class SessionService {
   }
 
   async requestResponse(url: string, init: RequestInit = {}): Promise<Response> {
+    const requestToken = this.state.token;
     const requestInit: RequestInit = { ...init };
     if (this.state.token) {
       const headers = new Headers(init.headers);
       headers.set("Authorization", `Bearer ${this.state.token}`);
       requestInit.headers = headers;
     }
-    const response = this.state.token || Object.keys(init).length > 0
+    const response = requestToken || Object.keys(init).length > 0
       ? await fetch(url, requestInit)
       : await fetch(url);
-    if (response.status === 401) {
+    if (response.status === 401 && this.state.token === requestToken) {
       this.clear();
       this.unauthorizedCallback?.();
     }

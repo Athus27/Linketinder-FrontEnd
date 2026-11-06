@@ -1,94 +1,36 @@
-import { app } from "../../main";
 import type { Job } from "../../models/Job";
-import { updateInfoCounters } from "../components/layout/InfoSection";
-import { JobEditForm } from "../components/forms/JobEditForm";
 import { JobProfileCard } from "../components/cards/JobProfileCard";
 import "./JobFeedPage.css";
-import { CandidateLikePage } from "./CandidateLikePage";
-import { changePage } from "../../renderAll";
 
-export function JobFeedPage(buscarVagas: () => Promise<Job[]>, remoteManagement = true): HTMLElement {
-	const section = document.createElement("section");
-	section.classList.add("job-feed-page");
-
-	const title = document.createElement("h1");
-	title.textContent = "Vagas disponíveis";
-
-	const feed = document.createElement("div");
-	feed.classList.add("job-feed");
-
-	let editingJobId: string | null = null;
-
-	async function renderJobs(): Promise<void> {
-        feed.textContent = "Carregando vagas...";
-        try {
-        const jobs = await buscarVagas();
-        feed.replaceChildren();
-
-		if (jobs.length === 0) {
-			const emptyMessage = document.createElement("p");
-			emptyMessage.classList.add("job-feed-empty");
-			emptyMessage.textContent = "Nenhuma vaga cadastrada.";
-			feed.appendChild(emptyMessage);
-			return;
-		}
-
-		jobs.forEach((job) => {
-			if (job.id === editingJobId) {
-				feed.appendChild(
-					JobEditForm(job, {
-						onSave: (data) => {
-							if (!app.updateJob(job.id, data)) return;
-							editingJobId = null;
-							renderJobs();
-						},
-						onCancel: () => {
-							editingJobId = null;
-							renderJobs();
-						}
-					})
-				);
-				return;
-			}
-
-			feed.appendChild(
-				JobProfileCard(job, {
-                    onEdit: (jobId) => {
-                        if (remoteManagement) {
-                            window.alert("A edição de vagas da API ainda não está integrada.");
-                            return;
-                        }
-						editingJobId = jobId;
-						renderJobs();
-					},
-                    onDelete: (jobId) => {
-                        if (remoteManagement) {
-                            window.alert("A exclusão de vagas da API ainda não está integrada.");
-                            return;
-                        }
-						if (!window.confirm(`Deseja excluir ${job.title}?`)) return;
-						app.removeJob(jobId);
-						updateInfoCounters();
-						renderJobs();
-					},
-                    onLike: (jobId) => {
-                        if (remoteManagement) {
-                            window.alert("As curtidas de vagas da API ainda não estão integradas.");
-                            return;
-                        }
-						changePage(CandidateLikePage(jobId));
-					}
-				})
-			);
-        });
-        } catch (error) {
-            feed.textContent = "Não foi possível carregar as vagas. Tente novamente.";
-        }
+export function JobFeedPage(
+  buscarVagas: () => Promise<Job[]>,
+  _remoteManagement = true,
+  onLike?: (id: string) => void,
+): HTMLElement {
+  const section = document.createElement("section");
+  section.className = "job-feed-page";
+  const title = document.createElement("h1");
+  title.textContent = "Vagas disponíveis";
+  if (!onLike) {
+    const limitation = document.createElement("p");
+    limitation.textContent = "Edição e exclusão de vagas não estão disponíveis nesta etapa.";
+    section.appendChild(limitation);
+  }
+  const feed = document.createElement("div");
+  feed.className = "job-feed";
+  section.append(title, feed);
+  feed.textContent = "Carregando vagas...";
+  void buscarVagas().then((jobs) => {
+    feed.replaceChildren();
+    if (!jobs.length) {
+      feed.textContent = "Nenhuma vaga cadastrada.";
+      return;
     }
-
-    void renderJobs();
-
-	section.append(title, feed);
-
-	return section;
+    jobs.forEach((job) => feed.appendChild(JobProfileCard(job, {
+      onEdit: () => { /* edição fora do escopo da T5 */ },
+      onDelete: () => { /* exclusão fora do escopo da T5 */ },
+      onLike: (id) => onLike?.(id),
+    }, onLike ? "like" : "none")));
+  }).catch(() => { feed.textContent = "Não foi possível carregar as vagas. Tente novamente."; });
+  return section;
 }
