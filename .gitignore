@@ -12,3 +12,7 @@ dist/
 coverage/
 .vitest/
 *.tsbuildinfo
+
+# Logs e artefatos locais de ferramentas
+*.log
+.superpowers/
