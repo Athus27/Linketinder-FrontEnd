@@ -1,4 +1,6 @@
 import {afterEach, describe, expect, it, vi} from "vitest";
+import { Candidate } from "../../src/models/Candidate";
+import type { CandidateResponse } from "../../src/types/CandidateResponse";
 import {CandidateService} from "../../src/services/CandidateService";
 
 afterEach(() => {
@@ -64,39 +66,65 @@ describe("CandidateService", () => {
     expect(result).toBe(false);
   });
 
-  it("retorna lista de candidatos", async () => {
-    //given
+  it("converte a lista da API em instâncias de Candidate preservando os dados e o ID", async () => {
+    // given
     const candidateService = new CandidateService();
-    const candidatos = [
-      {
-        name: "John Doe",
-        cpf: "12345678901",
-      },
-    ];
-    const fetchSimulado = vi.fn();
-    fetchSimulado.mockResolvedValue(
-      new Response(JSON.stringify(candidatos), {
-        status: 200,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }),
+    const candidatos: CandidateResponse[] = [{
+      id: 42,
+      nome: "John Doe",
+      cpf: "12345678901",
+      dataNascimento: "1990-01-01",
+      descricao: "Descrição do candidato",
+      email: "teste@email.com",
+      cep: "12345678",
+      competencias: ["Groovy", "TypeScript"],
+    }];
+    const fetchSimulado = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify(candidatos), { status: 200 })
     );
     vi.stubGlobal("fetch", fetchSimulado);
 
-    //when
+    // when
     const result = await candidateService.getCandidatos();
-    console.log(result);
-    //then
-    expect(result).toEqual(candidatos);
-    expect(fetchSimulado).toHaveBeenCalledWith(
-      candidateService.url,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      },
-    );
+
+    // then
+    expect(result).toHaveLength(1);
+    expect(result[0]).toBeInstanceOf(Candidate);
+    expect(result[0]).toMatchObject({
+      id: "42",
+      name: "John Doe",
+      cpf: "12345678901",
+      birthDate: "1990-01-01",
+      description: "Descrição do candidato",
+      email: "teste@email.com",
+      state: "",
+      cepCode: "12345678",
+      skills: ["Groovy", "TypeScript"],
+    });
+    expect(result[0].getSkills()).toEqual(["Groovy", "TypeScript"]);
+    expect(fetchSimulado).toHaveBeenCalledExactlyOnceWith(candidateService.url);
+  });
+
+  it("retorna lista vazia quando a API não possui candidatos", async () => {
+    // given
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response("[]", { status: 200 })));
+    const service = new CandidateService();
+
+    // when
+    const result = await service.getCandidatos();
+
+    // then
+    expect(result).toEqual([]);
+  });
+
+  it("rejeita a consulta quando a API responde com erro HTTP", async () => {
+    // given
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(
+      new Response('{"erro":"Erro interno"}', { status: 500 })
+    ));
+    const service = new CandidateService();
+
+    // when / then
+    await expect(service.getCandidatos()).rejects.toThrow("Erro ao buscar candidatos: HTTP 500");
   });
 });
