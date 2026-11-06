@@ -9,6 +9,8 @@ import { CandidateLikePage } from "./view/pages/CandidateLikePage";
 import { CompanyLikePage } from "./view/pages/CompanyLikePage";
 import { destroyCompetenceGraphs } from "./view/components/charts/CompetenceGraph";
 import { GraphSkillsPage } from "./view/pages/GraphSkillsPage";
+import { CandidateController } from "./controllers/CandidateController";
+import { CandidateService } from "./services/CandidateService";
 
 export function renderAll(): void {
 	const app = document.getElementById("app");
@@ -27,6 +29,8 @@ export function renderAll(): void {
 
 	// A aplicação começa c/ o conteúdo oculto.
 	pageContent.hidden = true;
+
+	const candidateController = new CandidateController(new CandidateService());
 
 	const headerActions = {
 		onMenuToggle: (isOpen: boolean): void => {
@@ -48,10 +52,10 @@ export function renderAll(): void {
 			changePage(CompanyFeedPage());
 		},
 		onViewCandidates: (): void => {
-			changePage(CandidateFeedPage());
+			changePage(CandidateFeedPage(() => candidateController.getCandidatos()));
 		},
 		onManageCandidates: (): void => {
-			changePage(CandidateFeedPage(true));
+			changePage(CandidateFeedPage(() => candidateController.getCandidatos(), true, true));
 		},
 		onViewJobs: (): void => {
 			changePage(JobFeedPage());

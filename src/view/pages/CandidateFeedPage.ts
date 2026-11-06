@@ -1,91 +1,105 @@
-import { app } from "../../main";
-import { CandidateProfileCard } from "../components/cards/CandidateProfileCard";
-import { CandidateEditForm } from "../components/forms/CandidateEditForm";
-import { updateInfoCounters } from "../components/layout/InfoSection";
+import {app} from "../../main";
+import {CandidateProfileCard} from "../components/cards/CandidateProfileCard";
+import {CandidateEditForm} from "../components/forms/CandidateEditForm";
+import {updateInfoCounters} from "../components/layout/InfoSection";
 import "./CandidateFeedPage.css";
-import { CompanyLikePage } from "./CompanyLikePage";
-import { changePage } from "../../renderAll";
+import {CompanyLikePage} from "./CompanyLikePage";
+import {changePage} from "../../renderAll";
 
-export function CandidateFeedPage(managementMode = false): HTMLElement {
-	const section = document.createElement("section");
-	section.classList.add("candidate-feed-page");
+import type {Candidate} from "../../models/Candidate";
 
-	const title = document.createElement("h1");
-	title.textContent = managementMode ? "Gerenciar candidatos" : "Candidatos disponíveis";
+export function CandidateFeedPage(
+  buscarCandidatos: () => Promise<Candidate[]>,
+  managementMode = false,
+  remoteManagement = false
+): HTMLElement {
+  const section = document.createElement("section");
+  section.classList.add("candidate-feed-page");
 
-	const feed = document.createElement("div");
-	feed.classList.add("candidate-feed");
+  const title = document.createElement("h1");
+  title.textContent = managementMode ? "Gerenciar candidatos" : "Candidatos disponíveis";
 
-	let editingCandidateId: string | null = null;
+  const feed = document.createElement("div");
+  feed.classList.add("candidate-feed");
 
-	// controla listagem e edição de candidatos
-	function renderCandidates(): void {
-		feed.replaceChildren();
+  let editingCandidateId: string | null = null;
 
-		const candidates = app.getCandidates();
+  // controla listagem e edição de candidatos
+  async function renderCandidates(): Promise<void> {
+    feed.replaceChildren();
 
-		if (candidates.length === 0) {
-			const emptyMessage = document.createElement("p");
-			emptyMessage.classList.add("candidate-feed-empty");
-			emptyMessage.textContent = "Nenhum candidato cadastrado.";
+    const candidates = await buscarCandidatos()
 
-			feed.appendChild(emptyMessage);
-			return;
-		}
+    if (candidates.length === 0) {
+      const emptyMessage = document.createElement("p");
+      emptyMessage.classList.add("candidate-feed-empty");
+      emptyMessage.textContent = "Nenhum candidato cadastrado.";
 
-		candidates.forEach((candidate) => {
-			if (managementMode && candidate.id === editingCandidateId) {
-				const editForm = CandidateEditForm(candidate, {
-					onSave: (data) => {
-						const updated = app.updateCandidate(candidate.id, data);
+      feed.appendChild(emptyMessage);
+      return;
+    }
 
-						if (!updated) {
-							window.alert("Candidato não encontrado.");
-							return;
-						}
+    candidates.forEach((candidate) => {
+      if (managementMode && candidate.id === editingCandidateId) {
+        const editForm = CandidateEditForm(candidate, {
+          onSave: (data) => {
+            const updated = app.updateCandidate(candidate.id, data);
 
-						editingCandidateId = null;
-						renderCandidates();
-					},
+            if (!updated) {
+              window.alert("Candidato não encontrado.");
+              return;
+            }
 
-					onCancel: () => {
-						editingCandidateId = null;
-						renderCandidates();
-					}
-				});
+            editingCandidateId = null;
+            renderCandidates();
+          },
 
-				feed.appendChild(editForm);
-				return;
-			}
+          onCancel: () => {
+            editingCandidateId = null;
+            renderCandidates();
+          }
+        });
 
-			const card = CandidateProfileCard(candidate, {
-				onEdit: (candidateId) => {
-					editingCandidateId = candidateId;
-					renderCandidates();
-				},
+        feed.appendChild(editForm);
+        return;
+      }
 
-					onDelete: (candidateId) => {
-					const shouldDelete = window.confirm(`Deseja excluir ${candidate.name}?`);
+      const card = CandidateProfileCard(candidate, {
+        onEdit: (candidateId) => {
+          if (remoteManagement) {
+            window.alert("A edição de candidatos da API ainda não está integrada.");
+            return;
+          }
+          editingCandidateId = candidateId;
+          renderCandidates();
+        },
 
-					if (!shouldDelete) return;
+        onDelete: (candidateId) => {
+          if (remoteManagement) {
+            window.alert("A exclusão de candidatos da API ainda não está integrada.");
+            return;
+          }
+          const shouldDelete = window.confirm(`Deseja excluir ${candidate.name}?`);
 
-						app.removeCandidate(candidateId);
-						updateInfoCounters();
-						renderCandidates();
-					},
+          if (!shouldDelete) return;
 
-					onLike: (candidateId) => {
-						changePage(CompanyLikePage(candidateId));
-					}
-			}, !managementMode);
+          app.removeCandidate(candidateId);
+          updateInfoCounters();
+          renderCandidates();
+        },
 
-			feed.appendChild(card);
-		});
-	}
+        onLike: (candidateId) => {
+          changePage(CompanyLikePage(candidateId));
+        }
+      }, !managementMode);
 
-	renderCandidates();
+      feed.appendChild(card);
+    });
+  }
 
-	section.append(title, feed);
+  renderCandidates();
 
-	return section;
+  section.append(title, feed);
+
+  return section;
 }
