@@ -35,7 +35,21 @@ export class LinketinderApp {
 	}
 
 	constructor() {
-		this.candidates = this.load<Candidate>("candidates");
+    this.candidates = this.load<Candidate>("candidates").map((data) =>
+      Object.assign(
+        new Candidate(
+          data.name,
+          data.cpf,
+          data.birthDate,
+          data.description,
+          data.email,
+          data.state,
+          data.cepCode,
+          data.skills
+        ),
+        data
+      )
+    );
 		this.companies = this.load<Company>("companies");
 		this.jobs = this.load<Job>("jobs");
 		this.likes = this.load<Like>("likes");

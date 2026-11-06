@@ -6,7 +6,7 @@ import { createEditFormActions } from "./actions/FormActions";
 import "./CandidateEditForm.css";
 
 interface CandidateEditFormActions {
-	onSave: (data: CreateCandidateInput) => void;
+  onSave: (data: CreateCandidateInput) => void;
 	onCancel: () => void;
 }
 
@@ -24,7 +24,7 @@ export function CandidateEditForm(candidate: Candidate, actions: CandidateEditFo
 		createEditInputField(candidate.id, "Estado", "state", candidate.state),
 		createEditInputField(candidate.id, "CEP", "cepCode", candidate.cepCode),
 		createEditInputField(candidate.id, "CPF", "cpf", candidate.cpf),
-		createEditInputField(candidate.id, "Idade", "age", String(candidate.age), "number"),
+    createEditInputField(candidate.id, "Data de nascimento", "birthDate", candidate.birthDate, "date"),
 		createEditInputField(candidate.id, "Competências separadas por vírgula", "skills", candidate.skills.join(", ")),
 		createEditTextareaField(candidate.id, "Descrição", "description", candidate.description)
 	);
@@ -47,7 +47,7 @@ export function CandidateEditForm(candidate: Candidate, actions: CandidateEditFo
 			state: String(formData.get("state") ?? ""),
 			cepCode: String(formData.get("cepCode") ?? ""),
 			cpf: String(formData.get("cpf") ?? ""),
-			age: Number(formData.get("age")),
+      birthDate: String(formData.get("birthDate") ?? ""),
 			description: String(formData.get("description") ?? ""),
 			skills
 		});

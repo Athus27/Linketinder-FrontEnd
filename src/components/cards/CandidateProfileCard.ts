@@ -20,7 +20,7 @@ export function CandidateProfileCard(
 	name.textContent = anonymous ? "Perfil de candidato" : candidate.name;
 
 	const location = document.createElement("p");
-	location.textContent = `${candidate.state} • ${candidate.age} anos`;
+	location.textContent = `${candidate.state} • ${candidate.getAge()} anos`;
 
 	const description = document.createElement("p");
 	description.textContent = candidate.description;

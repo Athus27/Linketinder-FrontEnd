@@ -1,7 +1,7 @@
 export interface CreateCandidateInput {
 	name: string;
 	cpf: string;
-	age: number;
+  birthDate: string;
 	description: string;
 	email: string;
 	state: string;

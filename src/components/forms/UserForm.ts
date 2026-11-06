@@ -44,7 +44,7 @@ export function createUserForm(type: UserType): HTMLFormElement {
 
 	if (type !== "company") {
 		form.appendChild(createSkillsInput());
-		form.append(createInput("CPF", "cpf"), createInput("Idade", "age", "number"));
+		form.append(createInput("CPF", "cpf"), createInput("Data de nascimento", "birthDate", "date"));
 	} else {
 		form.append(createInput("CNPJ", "cnpj"), createInput("País", "country"));
 	}
@@ -87,7 +87,7 @@ export function createUserForm(type: UserType): HTMLFormElement {
 			const candidate = new Candidate(
 				name,
 				String(formData.get("cpf") ?? ""),
-				Number(formData.get("age")),
+				String(formData.get("birthDate")),
 				description,
 				email,
 				state,
