@@ -144,4 +144,34 @@ describe("CandidateService", () => {
     // when / then
     await expect(service.getCandidatos()).rejects.toThrow("Erro ao buscar candidatos: HTTP 500");
   });
+
+  it("envia DELETE para o ID e retorna true quando a API confirma a exclusão", async () => {
+    const service = new CandidateService();
+    const fetchSimulado = vi.fn().mockResolvedValue(new Response(null, { status: 204 }));
+    vi.stubGlobal("fetch", fetchSimulado);
+
+    const resultado = await service.excluirCandidato("42");
+
+    expect(resultado).toBe(true);
+    expect(fetchSimulado).toHaveBeenCalledExactlyOnceWith(`${service.url}/42`, {
+      method: "DELETE",
+    });
+  });
+
+  it("retorna false quando a API rejeita a exclusão", async () => {
+    const service = new CandidateService();
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(null, { status: 404 })));
+
+    const resultado = await service.excluirCandidato("999");
+
+    expect(resultado).toBe(false);
+  });
+
+  it("propaga falha de conexão ao excluir candidato", async () => {
+    const service = new CandidateService();
+    const erro = new TypeError("Falha de conexão");
+    vi.stubGlobal("fetch", vi.fn().mockRejectedValue(erro));
+
+    await expect(service.excluirCandidato("42")).rejects.toBe(erro);
+  });
 });

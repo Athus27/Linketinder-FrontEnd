@@ -1,4 +1,5 @@
 import "./Header.css";
+import type { AuthenticatedUser } from "../../../types/UserType";
 
 interface HeaderActions {
 	onCreateCandidate: () => void;
@@ -12,14 +13,21 @@ interface HeaderActions {
 	onCandidateLike: () => void;
 	onCompanyLike: () => void;
 	onMenuToggle: (isOpen: boolean) => void;
+	onLogin: () => void;
+	onLogout: () => void;
 }
 
-export function Header(actions: HeaderActions): HTMLElement {
+export function Header(actions: HeaderActions, user: AuthenticatedUser | null = null): HTMLElement {
 	const section = document.createElement("section");
 	section.classList.add("header");
 	section.innerHTML = `
 	<div class="header-row">
 		<h1>Linketinder</h1>
+		<div class="header-account">
+			<span id="account-label"></span>
+			<button id="login-button" type="button">Entrar</button>
+			<button id="logout-button" type="button" hidden>Sair</button>
+		</div>
 		<button id="menu-open-button"><img src="../../public/assets/icons/menu.svg" alt="Menu" /></button>
 	</div>
 	<div class="header-options" hidden>
@@ -48,6 +56,9 @@ export function Header(actions: HeaderActions): HTMLElement {
 	`;
 
 	const menuOpenButton = section.querySelector<HTMLButtonElement>("#menu-open-button");
+	const accountLabel = section.querySelector<HTMLElement>("#account-label");
+	const loginButton = section.querySelector<HTMLButtonElement>("#login-button");
+	const logoutButton = section.querySelector<HTMLButtonElement>("#logout-button");
 
 	const headerOptions = section.querySelector<HTMLElement>(".header-options");
 
@@ -67,6 +78,18 @@ export function Header(actions: HeaderActions): HTMLElement {
 	const manageCandidatesButton = section.querySelector<HTMLButtonElement>("#manage-candidates-button");
 	const viewJobsButton = section.querySelector<HTMLButtonElement>("#candidate-feed-button");
 	const candidateLikeButton = section.querySelector<HTMLButtonElement>("#candidate-like-button");
+
+	if (accountLabel) {
+		accountLabel.textContent = user
+			? `Conta: ${user.name} (${user.type === "candidate" ? "Candidato" : "Empresa"})`
+			: "Não conectado";
+	}
+	if (loginButton) loginButton.hidden = Boolean(user);
+	if (logoutButton) logoutButton.hidden = !user;
+	if (companyButton && user?.type === "candidate") companyButton.hidden = true;
+	if (candidateButton && user?.type === "company") candidateButton.hidden = true;
+	loginButton?.addEventListener("click", actions.onLogin);
+	logoutButton?.addEventListener("click", actions.onLogout);
 
 	function closeSubmenus(): void {
 		if (!companyButton || !candidateButton) return;

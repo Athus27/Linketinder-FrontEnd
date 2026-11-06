@@ -1,8 +1,8 @@
 import { UserType } from "../../../types/UserType";
-import { app } from "../../../main";
 import { CandidateController } from "../../../controllers/CandidateController";
 import { CandidateService } from "../../../services/CandidateService";
-import { Company } from "../../../models/Company";
+import { CompanyController } from "../../../controllers/CompanyController";
+import { CompanyService } from "../../../services/CompanyService";
 import { updateInfoCounters } from "../layout/InfoSection";
 import "./fields/FormFields.css";
 import "./UserForm.css";
@@ -54,6 +54,11 @@ export function createUserForm(type: UserType): HTMLFormElement {
 		form.append(createInput("CPF", "cpf"), createInput("Data de nascimento", "birthDate", "date"));
 	} else {
 		form.append(createInput("CNPJ", "cnpj"), createInput("País", "country"));
+		const passwordField = createInput("Senha", "password", "password");
+		const passwordInput = passwordField.querySelector("input")!;
+		passwordInput.minLength = 6;
+		passwordInput.autocomplete = "new-password";
+		form.appendChild(passwordField);
 	}
 
 	const descriptionField = document.createElement("div");
@@ -115,17 +120,29 @@ export function createUserForm(type: UserType): HTMLFormElement {
 				submitButton.disabled = false;
 			}
 		} else {
-			const company = new Company(
-				name,
-				String(formData.get("cnpj") ?? ""),
-				description,
-				email,
-				state,
-				cepCode,
-				String(formData.get("country") ?? "")
-			);
-
-			app.addCompany(company);
+			submitButton.disabled = true;
+			try {
+				const controller = new CompanyController(new CompanyService());
+				const cadastrada = await controller.cadastrarEmpresa({
+					name,
+					cnpj: String(formData.get("cnpj") ?? ""),
+					description,
+					email,
+					password: String(formData.get("password") ?? ""),
+					state,
+					cepCode,
+					country: String(formData.get("country") ?? ""),
+				});
+				if (!cadastrada) {
+					window.alert("Não foi possível cadastrar a empresa. Confira os dados e tente novamente.");
+					return;
+				}
+			} catch {
+				window.alert("Não foi possível conectar à API para cadastrar a empresa.");
+				return;
+			} finally {
+				submitButton.disabled = false;
+			}
 		}
 
 		updateInfoCounters();

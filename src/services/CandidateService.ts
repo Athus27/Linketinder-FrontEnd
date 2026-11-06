@@ -61,4 +61,12 @@ export class CandidateService {
       return candidato;
     });
   }
+
+  async excluirCandidato(id: string): Promise<boolean> {
+    const response = await fetch(`${this.url}/${id}`, {
+      method: "DELETE",
+    });
+
+    return response.ok;
+  }
 }

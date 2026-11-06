@@ -15,6 +15,8 @@ import { CompanyController } from "./controllers/CompanyController";
 import { CompanyService } from "./services/CompanyService";
 import { JobController } from "./controllers/JobController";
 import { JobService } from "./services/JobService";
+import { LoginPage } from "./view/pages/LoginPage";
+import type { AuthenticatedUser } from "./types/UserType";
 
 export function renderAll(): void {
 	const app = document.getElementById("app");
@@ -37,11 +39,33 @@ export function renderAll(): void {
 	const candidateController = new CandidateController(new CandidateService());
     const companyController = new CompanyController(new CompanyService());
     const jobController = new JobController(new JobService());
+	let currentUser: AuthenticatedUser | null = null;
+
+	const showAuthenticatedHome = (user: AuthenticatedUser): void => {
+		currentUser = user;
+		app.replaceChildren(createHeader(), pageContent);
+		pageContent.hidden = false;
+		if (user.type === "candidate") {
+			changePage(JobFeedPage(() => jobController.getVagas()));
+		} else {
+			changePage(CompanyFeedPage(() => companyController.getEmpresas()));
+		}
+	};
 
 	const headerActions = {
 		onMenuToggle: (isOpen: boolean): void => {
 			// Menu aberto mostra a página e menu fechado esconde.
 			pageContent.hidden = !isOpen;
+		},
+		onLogin: (): void => {
+			pageContent.hidden = false;
+			changePage(LoginPage(showAuthenticatedHome));
+		},
+		onLogout: (): void => {
+			currentUser = null;
+			app.replaceChildren(createHeader(), pageContent);
+			pageContent.hidden = false;
+			changePage(LoginPage(showAuthenticatedHome));
 		},
 
 		onCreateCandidate: (): void => {
@@ -61,7 +85,12 @@ export function renderAll(): void {
 			changePage(CandidateFeedPage(() => candidateController.getCandidatos()));
 		},
 		onManageCandidates: (): void => {
-			changePage(CandidateFeedPage(() => candidateController.getCandidatos(), true, true));
+			changePage(CandidateFeedPage(
+				() => candidateController.getCandidatos(),
+				true,
+				true,
+				(id) => candidateController.excluirCandidato(id)
+			));
 		},
 		onViewJobs: (): void => {
 			changePage(JobFeedPage(() => jobController.getVagas()));
@@ -77,12 +106,13 @@ export function renderAll(): void {
 		}
 	};
 
-	const header = Header(headerActions);
+	const createHeader = (): HTMLElement => Header(headerActions, currentUser);
+	const header = createHeader();
 
 	app.replaceChildren(header, pageContent);
 
 	// Nenhum formulário fica selecionado inicialmente.
-	changePage(RegisterPage());
+	changePage(LoginPage(showAuthenticatedHome));
 }
 
 export function changePage(newPage: HTMLElement): void {

@@ -27,4 +27,13 @@ export class CandidateController {
       throw error;
     }
   }
+
+  async excluirCandidato(id: string): Promise<boolean> {
+    try {
+      return await this.candidateService.excluirCandidato(id);
+    } catch (error) {
+      console.error("Erro ao excluir candidato:", error);
+      return false;
+    }
+  }
 }

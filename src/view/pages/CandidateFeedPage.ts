@@ -11,7 +11,8 @@ import type {Candidate} from "../../models/Candidate";
 export function CandidateFeedPage(
   buscarCandidatos: () => Promise<Candidate[]>,
   managementMode = false,
-  remoteManagement = false
+  remoteManagement = false,
+  excluirCandidato?: (candidateId: string) => Promise<boolean>
 ): HTMLElement {
   const section = document.createElement("section");
   section.classList.add("candidate-feed-page");
@@ -75,13 +76,29 @@ export function CandidateFeedPage(
         },
 
         onDelete: (candidateId) => {
-          if (remoteManagement) {
-            window.alert("A exclusão de candidatos da API ainda não está integrada.");
-            return;
-          }
           const shouldDelete = window.confirm(`Deseja excluir ${candidate.name}?`);
 
           if (!shouldDelete) return;
+
+          if (remoteManagement) {
+            if (!excluirCandidato) {
+              window.alert("A exclusão de candidatos da API ainda não está integrada.");
+              return;
+            }
+
+            void excluirCandidato(candidateId).then((deleted) => {
+              if (!deleted) {
+                window.alert("Não foi possível excluir o candidato. Tente novamente.");
+                return;
+              }
+
+              return renderCandidates();
+            }).catch((error) => {
+              console.error("Candidato excluído, mas não foi possível atualizar a lista:", error);
+              feed.textContent = "Candidato excluído, mas não foi possível atualizar a lista.";
+            });
+            return;
+          }
 
           app.removeCandidate(candidateId);
           updateInfoCounters();

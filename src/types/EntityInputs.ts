@@ -19,6 +19,7 @@ export interface CreateCompanyInput {
 	cnpj: string;
 	description: string;
 	email: string;
+	password: string;
 	state: string;
 	cepCode: string;
 	country: string;

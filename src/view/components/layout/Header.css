@@ -22,6 +22,16 @@
 	font-size: 1.5rem;
 }
 
+.header-account {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+.header-account button {
+	padding: 8px 14px;
+}
+
 .header-options {
 	display: flex;
 	align-items: stretch;

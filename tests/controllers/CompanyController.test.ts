@@ -18,4 +18,13 @@ describe("CompanyController", () => {
     vi.spyOn(service, "getEmpresas").mockRejectedValue(erro);
     await expect(new CompanyController(service).getEmpresas()).rejects.toBe(erro);
   });
+
+  it("encaminha o cadastro da empresa ao service", async () => {
+    const service = new CompanyService();
+    const cadastro = vi.spyOn(service, "cadastrarEmpresa").mockResolvedValue(true);
+    const input = { name: "Empresa", password: "senha123" } as never;
+
+    await expect(new CompanyController(service).cadastrarEmpresa(input)).resolves.toBe(true);
+    expect(cadastro).toHaveBeenCalledExactlyOnceWith(input);
+  });
 });
