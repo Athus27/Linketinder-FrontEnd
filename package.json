@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "test": "node --import ./tests/register-typescript.mjs --test tests/*.test.mjs"
+    "test": "vitest",
+    "test:run": "vitest run"
   },
   "repository": {
     "type": "git",
@@ -23,7 +24,8 @@
   "homepage": "https://github.com/Athus27/Linketinder-FrontEnd#readme",
   "devDependencies": {
     "typescript": "^7.0.2",
-    "vite": "^8.3.0"
+    "vite": "^8.3.0",
+    "vitest": "^4.1.12"
   },
   "dependencies": {
     "chart.js": "^4.5.1",
