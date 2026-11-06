@@ -1,21 +1,26 @@
 # Linketinder Front-End
 
-Aplicação front-end em TypeScript para cadastrar candidatos, empresas e vagas, envolvendo suas competencias. Os dados e as curtidas são armazenados no `localStorage`; quando candidato e empresa curtem a mesma relação candidato–vaga, ocorre um match.
+Aplicação front-end em TypeScript para candidatos, empresas e vagas. Os cadastros de candidatos e empresas, consultas e login comunicam com a API Groovy; vagas, curtidas e matches ainda usam `localStorage`.
 ## Integração com a API
 
 O [backend Groovy/PostgreSQL](https://github.com/Athus27/Linketinder-Project) permanece em um repositório separado. O frontend usa `fetch` para comunicar por HTTP; não acessa diretamente o banco.
 
+Veja o [documento da integração entre frontend e backend](https://github.com/Athus27/Linketinder-Project/blob/main/docs/integracao-frontend-backend.md) para os fluxos de cadastro/login, exemplos JSON e limitações atuais.
+
 | Recurso | Fonte dos dados atual |
 |---|---|
-| Menu da Empresa → Visualizar candidatos | GET `/api/candidatos` pela API |
-| Menu do Candidato → Gerenciar candidatos | GET `/api/candidatos`; edição e exclusão ainda não integradas |
+| Visualizar candidatos | GET `/api/candidatos` pela API |
+| Gerenciar candidatos | GET e DELETE `/api/candidatos`; edição ainda não integrada |
 | Visualizar empresas | GET `/api/empresas` pela API |
 | Visualizar vagas | GET `/api/vagas` pela API |
-| Formulários de cadastro de candidatos, empresas e vagas | `localStorage` |
-| Curtidas, matches e contadores | Dados locais |
-| Login | Ainda não implementado |
+| Cadastro de candidato | POST `/api/candidatos` |
+| Cadastro de empresa | POST `/api/empresas` |
+| Cadastro de vaga | `localStorage` |
+| Contadores e gráfico de competências por vaga | Consultas à API |
+| Curtidas e matches | Dados locais |
+| Login | POST `/api/auth/login`; perfil em memória enquanto a página está aberta |
 
-O formulário de candidato envia o cadastro à API, convertendo os campos da interface para o contrato do backend. A senha é enviada apenas nessa requisição e não é armazenada no modelo do frontend nem no `localStorage`. Os candidatos consultados pela API também não são copiados para o `localStorage`. Visualização e gerenciamento consultam a mesma API. No gerenciamento remoto de candidatos e na listagem de vagas, editar e excluir exibem uma mensagem de funcionalidade ainda não integrada, sem alterar o armazenamento local. Curtidas em vagas remotas também exibem essa pendência; o fluxo de curtidas local não foi migrado. Os contadores continuam locais e não representam a quantidade do banco.
+Os formulários de candidato e empresa convertem os campos da interface para o contrato da API. Senhas são enviadas somente na requisição e não ficam no modelo ou `localStorage`. O login válido mostra nome e tipo de perfil no cabeçalho e exibe o menu correspondente; sair limpa esse estado em memória. Atualizar a página encerra esse estado local. O backend ainda não cria sessão/token nem protege os endpoints, então essa seleção de menu não é controle de acesso. Editar candidatos e editar/excluir vagas ainda não estão integrados. Curtidas e matches permanecem locais; contadores e gráficos consultam o backend.
 
 ## Como executar
 
@@ -39,9 +44,9 @@ npm run dev
 
 Abra o endereço informado pelo Vite, normalmente `http://localhost:5173`.
 
-**CORS:** o backend autoriza por padrão `http://localhost:5173` e trata o preflight `OPTIONS` de POST JSON. Se o Vite usar outra porta ou hostname, configure `FRONTEND_ORIGIN` no backend com a origem exata e reinicie a API. A variável `VITE_API_URL` configura o destino da consulta, enquanto `FRONTEND_ORIGIN` configura quem pode ler a resposta no navegador. CORS não sincroniza dados locais nem implementa login.
+**CORS:** o backend autoriza por padrão `http://localhost:5173` e trata o preflight `OPTIONS` de POST JSON. Se o Vite usar outra porta ou hostname, configure `FRONTEND_ORIGIN` no backend com a origem exata e reinicie a API. A variável `VITE_API_URL` configura o destino da consulta, enquanto `FRONTEND_ORIGIN` configura quem pode ler a resposta no navegador. CORS não sincroniza dados locais nem cria sessão; o login atual apenas valida credenciais e ajusta a interface.
 
-As páginas de empresas e vagas mostram carregamento, lista vazia e erro de consulta. A página de candidatos ainda não apresenta estados de carregamento e erro. Os testes no Node não substituem a verificação do fluxo no navegador.
+As páginas remotas mostram carregamento, lista vazia e erro de consulta. Os testes no Node não substituem a verificação do fluxo no navegador.
 
 ```bash
 npm run build
@@ -205,4 +210,4 @@ class node_app,node_models toneRose
 
 O `CompanyService` transforma `nome`, `descricao`, `pais` e `cep` em `name`, `description`, `country` e `cepCode`. Como a API não devolve estado, `state` fica vazio. O `JobService` transforma `titulo`, `descricao`, `idEmpresa` e `competencias` em `title`, `description`, `companyId` e `skills`. O modelo atual de vaga não exibe `empresa` nem `localVaga`. Os IDs dos registros e da empresa vinculada à vaga são preservados como strings; as respostas são convertidas em instâncias de `Company` e `Job`.
 
-Os testes unitários dos services verificam conversão, preservação dos IDs, lista vazia, falha HTTP e falha de conexão. Os testes dos controllers verificam retorno da lista e propagação de erros. Cadastros, contadores e gráficos ainda utilizam dados locais; eles não são sincronizados por essas consultas.
+Os testes unitários dos services verificam conversão, preservação dos IDs, lista vazia, falha HTTP e falha de conexão. Os testes dos controllers verificam retorno da lista e propagação de erros. A InfoSection consulta empresas, candidatos e vagas da API; falhas aparecem como indisponibilidade, não como zero. O gráfico carrega vagas e candidatos do backend e conta quantos candidatos possuem cada competência exigida pela vaga selecionada.
