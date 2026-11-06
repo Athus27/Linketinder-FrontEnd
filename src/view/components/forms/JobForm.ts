@@ -1,8 +1,8 @@
-import { app } from "../../main";
-import type { Company } from "../../models/Company";
-import { Job } from "../../models/Job";
+import { app } from "../../../main";
+import type { Company } from "../../../models/Company";
+import { Job } from "../../../models/Job";
 import { updateInfoCounters } from "../layout/InfoSection";
-import { createSkillsInput } from "../forms/UserForm";
+import { createSkillsInput } from "./UserForm";
 import "./JobForm.css";
 
 function createInput(labelText: string, name: string): HTMLDivElement {

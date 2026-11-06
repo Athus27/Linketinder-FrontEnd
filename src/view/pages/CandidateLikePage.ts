@@ -1,4 +1,4 @@
-import { app } from "../main";
+import { app } from "../../main";
 import "../components/forms/LikeForm.css";
 
 function createSelectField(

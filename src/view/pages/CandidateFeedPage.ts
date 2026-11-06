@@ -1,10 +1,10 @@
-import { app } from "../main";
+import { app } from "../../main";
 import { CandidateProfileCard } from "../components/cards/CandidateProfileCard";
 import { CandidateEditForm } from "../components/forms/CandidateEditForm";
 import { updateInfoCounters } from "../components/layout/InfoSection";
 import "./CandidateFeedPage.css";
 import { CompanyLikePage } from "./CompanyLikePage";
-import { changePage } from "../renderAll";
+import { changePage } from "../../renderAll";
 
 export function CandidateFeedPage(managementMode = false): HTMLElement {
 	const section = document.createElement("section");

@@ -1,7 +1,7 @@
-import { UserType } from "../../types/UserType";
-import { app } from "../../main";
-import { Candidate } from "../../models/Candidate";
-import { Company } from "../../models/Company";
+import { UserType } from "../../../types/UserType";
+import { app } from "../../../main";
+import { Candidate } from "../../../models/Candidate";
+import { Company } from "../../../models/Company";
 import { updateInfoCounters } from "../layout/InfoSection";
 import "./fields/FormFields.css";
 import "./UserForm.css";

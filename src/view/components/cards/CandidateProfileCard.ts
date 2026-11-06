@@ -1,4 +1,4 @@
-import type { Candidate } from "../../models/Candidate";
+import type { Candidate } from "../../../models/Candidate";
 import { createCardActions } from "./actions/CardActions";
 import "./CandidateProfileCard.css";
 

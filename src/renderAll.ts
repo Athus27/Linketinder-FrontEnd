@@ -1,14 +1,14 @@
-import { Header } from "./components/layout/Header";
-import { InfoSection } from "./components/layout/InfoSection";
-import { RegisterPage } from "./pages/RegisterPage";
-import { CandidateFeedPage } from "./pages/CandidateFeedPage";
-import { CompanyFeedPage } from "./pages/CompanyFeedPage";
-import { JobFeedPage } from "./pages/JobFeedPage";
-import { JobRegisterPage } from "./pages/JobRegisterPage";
-import { CandidateLikePage } from "./pages/CandidateLikePage";
-import { CompanyLikePage } from "./pages/CompanyLikePage";
-import { destroyCompetenceGraphs } from "./components/charts/CompetenceGraph";
-import { GraphSkillsPage } from "./pages/GraphSkillsPage";
+import { Header } from "./view/components/layout/Header";
+import { InfoSection } from "./view/components/layout/InfoSection";
+import { RegisterPage } from "./view/pages/RegisterPage";
+import { CandidateFeedPage } from "./view/pages/CandidateFeedPage";
+import { CompanyFeedPage } from "./view/pages/CompanyFeedPage";
+import { JobFeedPage } from "./view/pages/JobFeedPage";
+import { JobRegisterPage } from "./view/pages/JobRegisterPage";
+import { CandidateLikePage } from "./view/pages/CandidateLikePage";
+import { CompanyLikePage } from "./view/pages/CompanyLikePage";
+import { destroyCompetenceGraphs } from "./view/components/charts/CompetenceGraph";
+import { GraphSkillsPage } from "./view/pages/GraphSkillsPage";
 
 export function renderAll(): void {
 	const app = document.getElementById("app");

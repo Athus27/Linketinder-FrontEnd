@@ -1,4 +1,4 @@
-import { UserType } from "./../types/UserType";
+import { UserType } from "../../types/UserType";
 import { createUserForm } from "../components/forms/UserForm";
 import "./RegisterPage.css";
 

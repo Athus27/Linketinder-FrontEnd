@@ -1,4 +1,4 @@
-import { app } from "../main";
+import { app } from "../../main";
 import { JobForm } from "../components/forms/JobForm";
 import "./JobRegisterPage.css";
 

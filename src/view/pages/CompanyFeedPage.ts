@@ -1,4 +1,4 @@
-import { app } from "../main";
+import { app } from "../../main";
 import { CompanyProfileCard } from "../components/cards/CompanyProfileCard";
 import "./CompanyFeedPage.css";
 

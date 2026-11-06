@@ -1,5 +1,5 @@
 import { CompetenceGraph, destroyCompetenceGraphs } from '../components/charts/CompetenceGraph';
-import { app } from '../main';
+import { app } from '../../main';
 import './GraphSkillsPage.css';
 
 export function GraphSkillsPage(): HTMLElement {

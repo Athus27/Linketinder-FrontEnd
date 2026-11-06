@@ -1,5 +1,5 @@
-import type { Candidate } from "../../models/Candidate";
-import type { CreateCandidateInput } from "../../types/EntityInputs";
+import type { Candidate } from "../../../models/Candidate";
+import type { CreateCandidateInput } from "../../../types/EntityInputs";
 import { createEditInputField, createEditTextareaField } from "./fields/FormFields";
 import { createEditFormActions } from "./actions/FormActions";
 
