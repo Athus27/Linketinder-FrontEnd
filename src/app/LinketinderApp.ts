@@ -1,5 +1,5 @@
 import { Candidate } from "../models/Candidate";
-import type { CreateCandidateInput, CreateJobInput } from "../types/EntityInputs";
+import type { UpdateCandidateInput, CreateJobInput } from "../types/EntityInputs";
 import { Company } from "../models/Company";
 import { Job } from "../models/Job";
 import type { Like, LikeResult } from "../models/Like";
@@ -81,7 +81,7 @@ export class LinketinderApp {
 		return true;
 	}
 
-	public updateCandidate(candidateId: string, data: CreateCandidateInput): boolean {
+	public updateCandidate(candidateId: string, data: UpdateCandidateInput): boolean {
 		const candidateIndex = this.getCandidateIndex(candidateId);
 
 		if (candidateIndex === -1) {

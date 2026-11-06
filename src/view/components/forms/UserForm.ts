@@ -1,6 +1,7 @@
 import { UserType } from "../../../types/UserType";
 import { app } from "../../../main";
-import { Candidate } from "../../../models/Candidate";
+import { CandidateController } from "../../../controllers/CandidateController";
+import { CandidateService } from "../../../services/CandidateService";
 import { Company } from "../../../models/Company";
 import { updateInfoCounters } from "../layout/InfoSection";
 import "./fields/FormFields.css";
@@ -43,6 +44,12 @@ export function createUserForm(type: UserType): HTMLFormElement {
 	);
 
 	if (type !== "company") {
+		form.append(createInput("Sobrenome", "surname"), createInput("País", "country"));
+		const passwordField = createInput("Senha", "password", "password");
+		const passwordInput = passwordField.querySelector("input")!;
+		passwordInput.minLength = 6;
+		passwordInput.autocomplete = "new-password";
+		form.appendChild(passwordField);
 		form.appendChild(createSkillsInput());
 		form.append(createInput("CPF", "cpf"), createInput("Data de nascimento", "birthDate", "date"));
 	} else {
@@ -72,7 +79,7 @@ export function createUserForm(type: UserType): HTMLFormElement {
 
 	form.appendChild(submitButton);
 
-	form.addEventListener("submit", (event) => {
+	form.addEventListener("submit", async (event) => {
 		event.preventDefault();
 
 		const formData = new FormData(form);
@@ -84,18 +91,29 @@ export function createUserForm(type: UserType): HTMLFormElement {
 		const cepCode = String(formData.get("cepCode") ?? "");
 
 		if (type === "candidate") {
-			const candidate = new Candidate(
-				name,
-				String(formData.get("cpf") ?? ""),
-				String(formData.get("birthDate")),
-				description,
-				email,
-				state,
-				cepCode,
-				formData.getAll("skills").map(String)
-			);
-
-			app.addCandidate(candidate);
+			submitButton.disabled = true;
+			try {
+				const controller = new CandidateController(new CandidateService());
+				const cadastrado = await controller.cadastrarCandidato({
+					name,
+					surname: String(formData.get("surname") ?? ""),
+					country: String(formData.get("country") ?? ""),
+					password: String(formData.get("password") ?? ""),
+					cpf: String(formData.get("cpf") ?? ""),
+					birthDate: String(formData.get("birthDate") ?? ""),
+					description,
+					email,
+					state,
+					cepCode,
+					skills: formData.getAll("skills").map(String),
+				});
+				if (!cadastrado) {
+					window.alert("Não foi possível cadastrar o candidato. Confira os dados e tente novamente.");
+					return;
+				}
+			} finally {
+				submitButton.disabled = false;
+			}
 		} else {
 			const company = new Company(
 				name,

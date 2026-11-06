@@ -1,12 +1,12 @@
 import type { Candidate } from "../../../models/Candidate";
-import type { CreateCandidateInput } from "../../../types/EntityInputs";
+import type { UpdateCandidateInput } from "../../../types/EntityInputs";
 import { createEditInputField, createEditTextareaField } from "./fields/FormFields";
 import { createEditFormActions } from "./actions/FormActions";
 
 import "./CandidateEditForm.css";
 
 interface CandidateEditFormActions {
-  onSave: (data: CreateCandidateInput) => void;
+  onSave: (data: UpdateCandidateInput) => void;
 	onCancel: () => void;
 }
 

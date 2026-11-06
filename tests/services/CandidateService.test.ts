@@ -13,6 +13,9 @@ describe("CandidateService", () => {
     const candidateService = new CandidateService();
     const candidato = {
       name: "John Doe",
+      surname: "Silva",
+      country: "Brasil",
+      password: "123456",
       cpf: "12345678901",
       birthDate: "1990-01-01",
       description: "Descrição do candidato",
@@ -37,7 +40,18 @@ describe("CandidateService", () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(candidato),
+        body: JSON.stringify({
+          nome: candidato.name,
+          sobrenome: candidato.surname,
+          dataNascimento: "01/01/1990",
+          cpf: candidato.cpf,
+          descricao: candidato.description,
+          email: candidato.email,
+          pais: candidato.country,
+          cep: candidato.cepCode,
+          senha: candidato.password,
+          competencias: candidato.skills,
+        }),
       },
     );
   });
@@ -47,6 +61,9 @@ describe("CandidateService", () => {
     const candidateService = new CandidateService();
     const candidato = {
       name: "John Doe",
+      surname: "Silva",
+      country: "Brasil",
+      password: "123456",
       cpf: "12345678901",
       birthDate: "1990-01-01",
       description: "Descrição do candidato",

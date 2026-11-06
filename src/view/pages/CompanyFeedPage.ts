@@ -1,8 +1,8 @@
-import { app } from "../../main";
+import type { Company } from "../../models/Company";
 import { CompanyProfileCard } from "../components/cards/CompanyProfileCard";
 import "./CompanyFeedPage.css";
 
-export function CompanyFeedPage(): HTMLElement {
+export function CompanyFeedPage(buscarEmpresas: () => Promise<Company[]>): HTMLElement {
 	const section = document.createElement("section");
 	section.classList.add("company-feed-page");
 
@@ -12,19 +12,25 @@ export function CompanyFeedPage(): HTMLElement {
 	const feed = document.createElement("div");
 	feed.classList.add("company-feed");
 
-	const companies = app.getCompanies();
+  async function renderCompanies(): Promise<void> {
+    feed.textContent = "Carregando empresas...";
+    try {
+      const companies = await buscarEmpresas();
+      feed.replaceChildren();
+      if (companies.length === 0) {
+        const emptyMessage = document.createElement("p");
+        emptyMessage.classList.add("company-feed-empty");
+        emptyMessage.textContent = "Nenhuma empresa cadastrada.";
+        feed.appendChild(emptyMessage);
+        return;
+      }
+      companies.forEach((company) => feed.appendChild(CompanyProfileCard(company)));
+    } catch (error) {
+      feed.textContent = "Não foi possível carregar as empresas. Tente novamente.";
+    }
+  }
 
-	if (companies.length === 0) {
-		const emptyMessage = document.createElement("p");
-		emptyMessage.classList.add("company-feed-empty");
-		emptyMessage.textContent = "Nenhuma empresa cadastrada.";
-
-		feed.appendChild(emptyMessage);
-	} else {
-		companies.forEach((company) => {
-			feed.appendChild(CompanyProfileCard(company));
-		});
-	}
+  void renderCompanies();
 
 	section.append(title, feed);
 

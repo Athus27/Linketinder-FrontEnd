@@ -11,6 +11,10 @@ import { destroyCompetenceGraphs } from "./view/components/charts/CompetenceGrap
 import { GraphSkillsPage } from "./view/pages/GraphSkillsPage";
 import { CandidateController } from "./controllers/CandidateController";
 import { CandidateService } from "./services/CandidateService";
+import { CompanyController } from "./controllers/CompanyController";
+import { CompanyService } from "./services/CompanyService";
+import { JobController } from "./controllers/JobController";
+import { JobService } from "./services/JobService";
 
 export function renderAll(): void {
 	const app = document.getElementById("app");
@@ -31,6 +35,8 @@ export function renderAll(): void {
 	pageContent.hidden = true;
 
 	const candidateController = new CandidateController(new CandidateService());
+    const companyController = new CompanyController(new CompanyService());
+    const jobController = new JobController(new JobService());
 
 	const headerActions = {
 		onMenuToggle: (isOpen: boolean): void => {
@@ -49,7 +55,7 @@ export function renderAll(): void {
 			changePage(JobRegisterPage());
 		},
 		onViewCompanies: (): void => {
-			changePage(CompanyFeedPage());
+			changePage(CompanyFeedPage(() => companyController.getEmpresas()));
 		},
 		onViewCandidates: (): void => {
 			changePage(CandidateFeedPage(() => candidateController.getCandidatos()));
@@ -58,7 +64,7 @@ export function renderAll(): void {
 			changePage(CandidateFeedPage(() => candidateController.getCandidatos(), true, true));
 		},
 		onViewJobs: (): void => {
-			changePage(JobFeedPage());
+			changePage(JobFeedPage(() => jobController.getVagas()));
 		},
 		onCandidateLike: (): void => {
 			changePage(CandidateLikePage());

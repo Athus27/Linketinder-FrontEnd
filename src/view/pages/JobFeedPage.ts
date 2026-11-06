@@ -1,4 +1,5 @@
 import { app } from "../../main";
+import type { Job } from "../../models/Job";
 import { updateInfoCounters } from "../components/layout/InfoSection";
 import { JobEditForm } from "../components/forms/JobEditForm";
 import { JobProfileCard } from "../components/cards/JobProfileCard";
@@ -6,7 +7,7 @@ import "./JobFeedPage.css";
 import { CandidateLikePage } from "./CandidateLikePage";
 import { changePage } from "../../renderAll";
 
-export function JobFeedPage(): HTMLElement {
+export function JobFeedPage(buscarVagas: () => Promise<Job[]>, remoteManagement = true): HTMLElement {
 	const section = document.createElement("section");
 	section.classList.add("job-feed-page");
 
@@ -18,9 +19,11 @@ export function JobFeedPage(): HTMLElement {
 
 	let editingJobId: string | null = null;
 
-	function renderJobs(): void {
-		feed.replaceChildren();
-		const jobs = app.getJobs();
+	async function renderJobs(): Promise<void> {
+        feed.textContent = "Carregando vagas...";
+        try {
+        const jobs = await buscarVagas();
+        feed.replaceChildren();
 
 		if (jobs.length === 0) {
 			const emptyMessage = document.createElement("p");
@@ -50,25 +53,40 @@ export function JobFeedPage(): HTMLElement {
 
 			feed.appendChild(
 				JobProfileCard(job, {
-					onEdit: (jobId) => {
+                    onEdit: (jobId) => {
+                        if (remoteManagement) {
+                            window.alert("A edição de vagas da API ainda não está integrada.");
+                            return;
+                        }
 						editingJobId = jobId;
 						renderJobs();
 					},
-					onDelete: (jobId) => {
+                    onDelete: (jobId) => {
+                        if (remoteManagement) {
+                            window.alert("A exclusão de vagas da API ainda não está integrada.");
+                            return;
+                        }
 						if (!window.confirm(`Deseja excluir ${job.title}?`)) return;
 						app.removeJob(jobId);
 						updateInfoCounters();
 						renderJobs();
 					},
-					onLike: (jobId) => {
+                    onLike: (jobId) => {
+                        if (remoteManagement) {
+                            window.alert("As curtidas de vagas da API ainda não estão integradas.");
+                            return;
+                        }
 						changePage(CandidateLikePage(jobId));
 					}
 				})
 			);
-		});
-	}
+        });
+        } catch (error) {
+            feed.textContent = "Não foi possível carregar as vagas. Tente novamente.";
+        }
+    }
 
-	renderJobs();
+    void renderJobs();
 
 	section.append(title, feed);
 

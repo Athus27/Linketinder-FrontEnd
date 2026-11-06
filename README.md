@@ -9,11 +9,13 @@ O [backend Groovy/PostgreSQL](https://github.com/Athus27/Linketinder-Project) pe
 |---|---|
 | Menu da Empresa → Visualizar candidatos | GET `/api/candidatos` pela API |
 | Menu do Candidato → Gerenciar candidatos | GET `/api/candidatos`; edição e exclusão ainda não integradas |
+| Visualizar empresas | GET `/api/empresas` pela API |
+| Visualizar vagas | GET `/api/vagas` pela API |
 | Formulários de cadastro de candidatos, empresas e vagas | `localStorage` |
 | Curtidas, matches e contadores | Dados locais |
 | Login | Ainda não implementado |
 
-O método de cadastro HTTP existe no service, mas ainda não está conectado ao formulário nem adaptado ao contrato do backend. Os candidatos consultados pela API não são copiados para o `localStorage`. Visualização e gerenciamento consultam a mesma API. No gerenciamento remoto, editar e excluir exibem uma mensagem de funcionalidade ainda não integrada, sem alterar o armazenamento local. Os contadores continuam locais e não representam a quantidade do banco.
+O formulário de candidato envia o cadastro à API, convertendo os campos da interface para o contrato do backend. A senha é enviada apenas nessa requisição e não é armazenada no modelo do frontend nem no `localStorage`. Os candidatos consultados pela API também não são copiados para o `localStorage`. Visualização e gerenciamento consultam a mesma API. No gerenciamento remoto de candidatos e na listagem de vagas, editar e excluir exibem uma mensagem de funcionalidade ainda não integrada, sem alterar o armazenamento local. Curtidas em vagas remotas também exibem essa pendência; o fluxo de curtidas local não foi migrado. Os contadores continuam locais e não representam a quantidade do banco.
 
 ## Como executar
 
@@ -39,7 +41,7 @@ Abra o endereço informado pelo Vite, normalmente `http://localhost:5173`.
 
 **CORS:** o backend autoriza por padrão `http://localhost:5173` e trata o preflight `OPTIONS` de POST JSON. Se o Vite usar outra porta ou hostname, configure `FRONTEND_ORIGIN` no backend com a origem exata e reinicie a API. A variável `VITE_API_URL` configura o destino da consulta, enquanto `FRONTEND_ORIGIN` configura quem pode ler a resposta no navegador. CORS não sincroniza dados locais nem implementa login.
 
-A página ainda não apresenta estados de carregamento e erro da consulta. Os testes no Node não substituem a verificação do fluxo no navegador.
+As páginas de empresas e vagas mostram carregamento, lista vazia e erro de consulta. A página de candidatos ainda não apresenta estados de carregamento e erro. Os testes no Node não substituem a verificação do fluxo no navegador.
 
 ```bash
 npm run build
@@ -51,7 +53,7 @@ npm run preview
 ## Testes
 
 ```bash
-npx vitest run tests/services/CandidateService.test.ts tests/controllers/CandidateController.test.ts
+npx vitest run tests/services/*.test.ts tests/controllers/*.test.ts --exclude "**/*.integration.test.ts"
 # Executa os testes unitários com dependências simuladas, sem consultar a API real.
 ```
 
@@ -83,7 +85,7 @@ src/
 ├── controllers/          # Coordenação das chamadas aos services
 ├── services/             # Comunicação HTTP e conversão da resposta
 ├── models/               # Candidate, Company, Job, Like e User
-├── types/                # Tipos de entrada e contrato CandidateResponse
+├── types/                # Tipos de entrada e contratos CandidateResponse, CompanyResponse e JobResponse
 ├── view/
 │   ├── components/       # Formulários, cartões, layout e gráficos
 │   └── pages/            # Composição das páginas
@@ -197,3 +199,10 @@ class node_registration,node_userform,node_candidatefeed,node_candidatecard,node
 class node_candidate_like,node_company_like toneMint
 class node_app,node_models toneRose
 ```
+## Listagem remota de empresas e vagas
+
+`renderAll` cria `CompanyController`/`CompanyService` e `JobController`/`JobService` e fornece funções de busca às páginas. `CompanyFeedPage` e `JobFeedPage` aguardam os dados e mostram carregamento, lista vazia ou erro de consulta.
+
+O `CompanyService` transforma `nome`, `descricao`, `pais` e `cep` em `name`, `description`, `country` e `cepCode`. Como a API não devolve estado, `state` fica vazio. O `JobService` transforma `titulo`, `descricao`, `idEmpresa` e `competencias` em `title`, `description`, `companyId` e `skills`. O modelo atual de vaga não exibe `empresa` nem `localVaga`. Os IDs dos registros e da empresa vinculada à vaga são preservados como strings; as respostas são convertidas em instâncias de `Company` e `Job`.
+
+Os testes unitários dos services verificam conversão, preservação dos IDs, lista vazia, falha HTTP e falha de conexão. Os testes dos controllers verificam retorno da lista e propagação de erros. Cadastros, contadores e gráficos ainda utilizam dados locais; eles não são sincronizados por essas consultas.

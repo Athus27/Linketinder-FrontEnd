@@ -1,4 +1,5 @@
 import {CreateCandidateInput} from "../types/EntityInputs";
+import type { CandidateRequest } from "../types/CandidateRequest";
 import { Candidate } from "../models/Candidate";
 import type { CandidateResponse } from "../types/CandidateResponse";
 
@@ -10,12 +11,25 @@ export class CandidateService {
   }
 
   async cadastrarCandidato(candidato: CreateCandidateInput): Promise<boolean> {
+    const [ano, mes, dia] = candidato.birthDate.split("-");
+    const dados: CandidateRequest = {
+      nome: candidato.name,
+      sobrenome: candidato.surname,
+      dataNascimento: `${dia}/${mes}/${ano}`,
+      cpf: candidato.cpf,
+      descricao: candidato.description,
+      email: candidato.email,
+      pais: candidato.country,
+      cep: candidato.cepCode,
+      senha: candidato.password,
+      competencias: candidato.skills,
+    };
     const response = fetch(this.url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(candidato),
+      body: JSON.stringify(dados),
     });
 
     const res = await response;
