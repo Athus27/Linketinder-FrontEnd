@@ -83,9 +83,9 @@ export function renderAll(): void {
     onManageRecruiters: () => currentUser?.type === "company" && changePage(RecruiterManagementPage()),
     onMatches: () => changePage(MatchesPage()),
     onViewCompetenceGraph: () => {
-      if (currentUser?.type !== "company" && currentUser?.type !== "recruiter") return;
+      const own = currentUser?.type === "company" || currentUser?.type === "recruiter";
       changePage(GraphSkillsPage(
-        () => new JobService().getVagas(true),
+        () => new JobService().getVagas(own),
         () => new CandidateService().getCandidatos(),
       ));
     },

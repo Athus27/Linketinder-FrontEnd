@@ -1,6 +1,8 @@
 # Linketinder Front-End
 
-Aplicação front-end em TypeScript para candidatos, empresas e vagas. Os cadastros de candidatos e empresas, consultas e login comunicam com a API Groovy; vagas, curtidas e matches ainda usam `localStorage`.
+Aplicação front-end em TypeScript, sem framework de interface. Candidatos,
+empresas, recrutadores, vagas, curtidas e matches usam a API Groovy. A demo
+legada com `localStorage` fica isolada e não inicia no fluxo real.
 ## Integração com a API
 
 O [backend Groovy/PostgreSQL](https://github.com/Athus27/Linketinder-Project) permanece em um repositório separado. O frontend usa `fetch` para comunicar por HTTP; não acessa diretamente o banco.
@@ -15,12 +17,23 @@ Veja o [documento da integração entre frontend e backend](https://github.com/A
 | Visualizar vagas | GET `/api/vagas` pela API |
 | Cadastro de candidato | POST `/api/candidatos` |
 | Cadastro de empresa | POST `/api/empresas` |
-| Cadastro de vaga | `localStorage` |
+| Cadastro de vaga | POST `/api/vagas`, somente empresa autenticada |
 | Contadores e gráfico de competências por vaga | Consultas à API |
-| Curtidas e matches | Dados locais |
-| Login | POST `/api/auth/login`; perfil em memória enquanto a página está aberta |
+| Curtidas e matches | POST `/api/curtidas` e GET `/api/matches` |
+| Recrutadores | GET/POST `/api/recrutadores` e DELETE por ID; gestão pela empresa |
+| Login | POST `/api/auth/login`; perfil e token Bearer somente em memória |
 
-Os formulários de candidato e empresa convertem os campos da interface para o contrato da API. Senhas são enviadas somente na requisição e não ficam no modelo ou `localStorage`. O login válido mostra nome e tipo de perfil no cabeçalho e exibe o menu correspondente; sair limpa esse estado em memória. Atualizar a página encerra esse estado local. O backend ainda não cria sessão/token nem protege os endpoints, então essa seleção de menu não é controle de acesso. Editar candidatos e editar/excluir vagas ainda não estão integrados. Curtidas e matches permanecem locais; contadores e gráficos consultam o backend.
+Os formulários convertem os campos para o contrato da API. Senhas não ficam
+no modelo ou `localStorage`. O login mostra nome/papel no cabeçalho; o token é
+enviado como Bearer e o backend valida cada operação. Sair revoga a sessão e
+limpa a interface; atualizar a página perde o estado local. Editar candidatos
+e editar/excluir vagas ainda não estão integrados.
+
+A empresa gerencia seus recrutadores; eles analisam vagas próprias e
+candidatos e representam a empresa nas curtidas. Antes do match, os cards são
+anônimos; o contato só aparece quando autorizado pela API. CPF, CNPJ,
+nascimento e senha nunca são exibidos nas listagens. Contadores e gráfico de
+competências consultam a API; o gráfico também fica disponível ao visitante.
 
 ## Como executar
 
@@ -44,7 +57,7 @@ npm run dev
 
 Abra o endereço informado pelo Vite, normalmente `http://localhost:5173`.
 
-**CORS:** o backend autoriza por padrão `http://localhost:5173` e trata o preflight `OPTIONS` de POST JSON. Se o Vite usar outra porta ou hostname, configure `FRONTEND_ORIGIN` no backend com a origem exata e reinicie a API. A variável `VITE_API_URL` configura o destino da consulta, enquanto `FRONTEND_ORIGIN` configura quem pode ler a resposta no navegador. CORS não sincroniza dados locais nem cria sessão; o login atual apenas valida credenciais e ajusta a interface.
+**CORS:** o backend autoriza por padrão `http://localhost:5173` e trata o preflight `OPTIONS`, incluindo `Authorization`. Se o Vite usar outra origem, configure `FRONTEND_ORIGIN` no backend e reinicie a API. `VITE_API_URL` define o destino da consulta; CORS não substitui autenticação. Aplique a migração V2 conforme o README do backend antes de usar o login desta versão.
 
 As páginas remotas mostram carregamento, lista vazia e erro de consulta. Os testes no Node não substituem a verificação do fluxo no navegador.
 

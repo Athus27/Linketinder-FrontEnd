@@ -27,6 +27,11 @@
 
 ### Corrigido
 
+- Menus de papéis agora respeitam `hidden` mesmo com estilos `display: flex`;
+  regressão com CSS real e confirmação no navegador. Fluxo real de criação
+  de recrutador, curtida e match validado em banco temporário.
+- Gráfico de competências acessível também para visitante/candidato; vagas
+  próprias continuam sendo usadas para empresa/recrutador.
 - A integração de candidatos foi tornada opt-in (`VITE_RUN_API_INTEGRATION=true`)
   e deixou de imprimir dados retornados.
 - Revisão T4 endureceu contratos de login, curtida, recrutador e match:

@@ -11,6 +11,7 @@ import { Candidate } from "../../src/models/Candidate";
 import { ApiError, SessionService, sharedSessionService } from "../../src/services/SessionService";
 import { renderAll } from "../../src/renderAll";
 import { CandidateFeedPage } from "../../src/view/pages/CandidateFeedPage";
+import { readFileSync } from "node:fs";
 
 const actions = {
   onCreateCandidate: vi.fn(), onCreateCompany: vi.fn(), onCreateJob: vi.fn(),
@@ -26,6 +27,26 @@ beforeEach(() => {
 });
 
 describe("T5 telas protegidas", () => {
+  it("mantém menus de perfis invisíveis ao visitante mesmo com CSS flex", () => {
+    const style = document.createElement("style");
+    style.textContent = readFileSync("src/styles/global.css", "utf8") +
+      readFileSync("src/view/components/layout/Header.css", "utf8");
+    const header = Header(actions);
+    document.head.appendChild(style);
+    document.body.appendChild(header);
+    try {
+      header.querySelector<HTMLButtonElement>("#menu-open-button")!.click();
+      for (const id of ["company", "candidate", "recruiter"]) {
+        const button = header.querySelector<HTMLElement>(`#menu-view-${id}-button`)!;
+        expect(getComputedStyle(button).display).toBe("none");
+      }
+      expect(getComputedStyle(header.querySelector("#menu-view-competence-graph-button")!).display).not.toBe("none");
+    } finally {
+      header.remove();
+      style.remove();
+    }
+  });
+
   it("mostra somente o menu do papel autenticado e não oferece recrutador público", () => {
     const header = Header(actions, { id: "1", name: "Empresa", type: "company", companyId: "2" });
     expect(header.querySelector("#menu-view-company-button")?.hidden).toBe(false);
