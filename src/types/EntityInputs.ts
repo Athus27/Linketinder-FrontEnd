@@ -1,7 +1,10 @@
 export interface CreateCandidateInput {
 	name: string;
+	surname: string;
+	country: string;
+	password: string;
 	cpf: string;
-	age: number;
+  birthDate: string;
 	description: string;
 	email: string;
 	state: string;
@@ -9,19 +12,23 @@ export interface CreateCandidateInput {
 	skills: string[];
 }
 
+export type UpdateCandidateInput = Omit<CreateCandidateInput, "surname" | "country" | "password">;
+
 export interface CreateCompanyInput {
 	name: string;
 	cnpj: string;
 	description: string;
 	email: string;
+	password: string;
 	state: string;
 	cepCode: string;
 	country: string;
 }
 
 export interface CreateJobInput {
-	companyId: string;
+	companyId?: string;
 	title: string;
 	description: string;
+	localVaga?: string;
 	skills: string[];
 }

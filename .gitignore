@@ -1,12 +1,18 @@
 .vscode/
-
 .idea/
-
 node_modules/
 dist/
 
+# Configuração local
+.env
+.env.*
+!.env.example
 
+# Artefatos de testes
+coverage/
+.vitest/
+*.tsbuildinfo
 
-
-
-
+# Logs e artefatos locais de ferramentas
+*.log
+.superpowers/

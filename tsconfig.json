@@ -7,5 +7,7 @@
 		"strict": true,
 		"noEmit": true
 	},
-	"include": ["src/**/*.ts", "src/components/tobias.js"]
+	"include": ["src/**/*.ts",
+      "src/view/components/tobias.js"
+    ]
 }

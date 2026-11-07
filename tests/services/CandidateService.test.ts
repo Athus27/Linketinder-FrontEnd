@@ -1,0 +1,169 @@
+import {afterEach, describe, expect, it, vi} from "vitest";
+import { Candidate } from "../../src/models/Candidate";
+import type { CandidateResponse } from "../../src/types/CandidateResponse";
+import {CandidateService} from "../../src/services/CandidateService";
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
+
+describe("CandidateService", () => {
+  it("retorna true quando a API responde com status 201", async () => {
+    //given
+    const candidateService = new CandidateService();
+    const candidato = {
+      name: "John Doe",
+      surname: "Silva",
+      country: "Brasil",
+      password: "123456",
+      cpf: "12345678901",
+      birthDate: "1990-01-01",
+      description: "Descrição do candidato",
+      email: "teste@emial.com",
+      state: "SP",
+      cepCode: "12345678",
+      skills: ["JavaScript", "TypeScript"],
+    };
+    const fetchSimulado = vi.fn();
+    fetchSimulado.mockResolvedValue(new Response(null, {status: 201}));
+    vi.stubGlobal("fetch", fetchSimulado);
+
+    //when
+    const result = await candidateService.cadastrarCandidato(candidato);
+
+    //then
+    expect(result).toBe(true);
+    expect(fetchSimulado).toHaveBeenCalledWith(
+      candidateService.url,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          nome: candidato.name,
+          sobrenome: candidato.surname,
+          dataNascimento: "01/01/1990",
+          cpf: candidato.cpf,
+          descricao: candidato.description,
+          email: candidato.email,
+          pais: candidato.country,
+          cep: candidato.cepCode,
+          senha: candidato.password,
+          competencias: candidato.skills,
+        }),
+      },
+    );
+  });
+
+  it("expõe o status de validação sem fallback local", async () => {
+    //given
+    const candidateService = new CandidateService();
+    const candidato = {
+      name: "John Doe",
+      surname: "Silva",
+      country: "Brasil",
+      password: "123456",
+      cpf: "12345678901",
+      birthDate: "1990-01-01",
+      description: "Descrição do candidato",
+      email: "teste@emial.com",
+      state: "SP",
+      cepCode: "12345678",
+      skills: ["JavaScript", "TypeScript"],
+    };
+    const fetchSimulado = vi.fn();
+    fetchSimulado.mockResolvedValue(new Response(null, {status: 400}));
+    vi.stubGlobal("fetch", fetchSimulado);
+
+    //when
+    await expect(candidateService.cadastrarCandidato(candidato)).rejects.toMatchObject({ status: 400 });
+  });
+
+  it("converte a lista da API em instâncias de Candidate preservando os dados e o ID", async () => {
+    // given
+    const candidateService = new CandidateService();
+    const candidatos: CandidateResponse[] = [{
+      id: 42,
+      nome: "John Doe",
+      formacao: "Tecnologia",
+      competencias: ["Groovy", "TypeScript"],
+    }];
+    const fetchSimulado = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify(candidatos), { status: 200 })
+    );
+    vi.stubGlobal("fetch", fetchSimulado);
+
+    // when
+    const result = await candidateService.getCandidatos();
+
+    // then
+    expect(result).toHaveLength(1);
+    expect(result[0]).toBeInstanceOf(Candidate);
+    expect(result[0]).toMatchObject({
+      id: "42",
+      name: "Candidato #42",
+      cpf: "",
+      birthDate: "",
+      description: "",
+      email: "",
+      state: "",
+      cepCode: "",
+      formation: "Tecnologia",
+      skills: ["Groovy", "TypeScript"],
+    });
+    expect(result[0].getSkills()).toEqual(["Groovy", "TypeScript"]);
+    expect(fetchSimulado).toHaveBeenCalledExactlyOnceWith(candidateService.url);
+  });
+
+  it("retorna lista vazia quando a API não possui candidatos", async () => {
+    // given
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response("[]", { status: 200 })));
+    const service = new CandidateService();
+
+    // when
+    const result = await service.getCandidatos();
+
+    // then
+    expect(result).toEqual([]);
+  });
+
+  it("rejeita a consulta quando a API responde com erro HTTP", async () => {
+    // given
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(
+      new Response('{"erro":"Erro interno"}', { status: 500 })
+    ));
+    const service = new CandidateService();
+
+    // when / then
+    await expect(service.getCandidatos()).rejects.toMatchObject({ status: 500 });
+  });
+
+  it("envia DELETE para o ID e retorna true quando a API confirma a exclusão", async () => {
+    const service = new CandidateService();
+    const fetchSimulado = vi.fn().mockResolvedValue(new Response(null, { status: 204 }));
+    vi.stubGlobal("fetch", fetchSimulado);
+
+    const resultado = await service.excluirCandidato("42");
+
+    expect(resultado).toBe(true);
+    expect(fetchSimulado).toHaveBeenCalledExactlyOnceWith(`${service.url}/42`, {
+      method: "DELETE",
+    });
+  });
+
+  it("propaga a rejeição da exclusão", async () => {
+    const service = new CandidateService();
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(null, { status: 404 })));
+
+    await expect(service.excluirCandidato("999")).rejects.toMatchObject({ status: 404 });
+  });
+
+  it("propaga falha de conexão ao excluir candidato", async () => {
+    const service = new CandidateService();
+    const erro = new TypeError("Falha de conexão");
+    vi.stubGlobal("fetch", vi.fn().mockRejectedValue(erro));
+
+    await expect(service.excluirCandidato("42")).rejects.toBe(erro);
+  });
+});

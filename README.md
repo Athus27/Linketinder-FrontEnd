@@ -1,26 +1,112 @@
 # Linketinder Front-End
 
-Aplicação front-end em TypeScript para cadastrar candidatos, empresas e vagas, envolvendo suas competencias. Os dados e as curtidas são armazenados no `localStorage`; quando candidato e empresa curtem a mesma relação candidato–vaga, ocorre um match.
+Aplicação front-end em TypeScript, sem framework de interface. Candidatos,
+empresas, recrutadores, vagas, curtidas e matches usam a API Groovy. A demo
+legada com `localStorage` fica isolada e não inicia no fluxo real.
+
+## Integração com a API
+
+O [backend Groovy/PostgreSQL](https://github.com/Athus27/Linketinder-Project) permanece em um repositório separado. O frontend usa `fetch` para comunicar por HTTP; não acessa diretamente o banco.
+
+Veja o [documento da integração entre frontend e backend](https://github.com/Athus27/Linketinder-Project/blob/main/docs/integracao-frontend-backend.md) para os fluxos de cadastro/login, exemplos JSON e limitações atuais.
+
+| Recurso | Fonte dos dados atual |
+|---|---|
+| Visualizar candidatos | GET `/api/candidatos` pela API |
+| Meu perfil de candidato | Consulta pela API e DELETE `/api/candidatos/{id}` do próprio titular; edição ainda não integrada |
+| Visualizar empresas | GET `/api/empresas` pela API |
+| Visualizar vagas | GET `/api/vagas` pela API |
+| Cadastro de candidato | POST `/api/candidatos` |
+| Cadastro de empresa | POST `/api/empresas` |
+| Cadastro de vaga | POST `/api/vagas`, somente empresa autenticada |
+| Contadores e gráfico de competências por vaga | Consultas à API |
+| Curtidas e matches | POST `/api/curtidas` e GET `/api/matches` |
+| Recrutadores | GET/POST `/api/recrutadores` e DELETE por ID; gestão pela empresa |
+| Login | POST `/api/auth/login`; perfil e token Bearer somente em memória |
+
+Os formulários convertem os campos para o contrato da API. Senhas não ficam
+no modelo ou `localStorage`. O login mostra nome/papel no cabeçalho; o token é
+enviado como Bearer e o backend valida cada operação. Sair revoga a sessão e
+limpa a interface; atualizar a página perde o estado local. Editar candidatos
+e editar/excluir vagas ainda não estão integrados.
+
+A empresa gerencia seus recrutadores; eles analisam vagas próprias e
+candidatos e representam a empresa nas curtidas. Antes do match, os cards são
+anônimos; o contato só aparece quando autorizado pela API. CPF, CNPJ,
+nascimento e senha nunca são exibidos nas listagens. Contadores e gráfico de
+competências consultam a API; o gráfico também fica disponível ao visitante.
+
 ## Como executar
-É necessário ter Node.js e npm instalados.
-```bash
 
-npm install
+É necessário ter Node.js e npm instalados. Na raiz deste repositório, crie `.env`, ao lado de `package.json`:
 
-npm run dev
-
+```dotenv
+# .env — endereço do backend local
+VITE_API_URL=http://localhost:8080
 ```
-Abra no navegador o endereço exibido pelo Vite, normalmente `http://localhost:5173`.
-Para verificar e gerar a versão de produção:
+
+Os services leem `import.meta.env.VITE_API_URL` e acrescentam o endpoint correspondente, como `/api/candidatos` ou `/api/recrutadores`. Reinicie o Vite após alterar a configuração. O `.env` é ignorado pelo Git; variáveis com prefixo `VITE_` são expostas ao frontend e não devem conter senhas.
+
+Inicie o PostgreSQL e o backend conforme seu README. Em outro terminal, na raiz do frontend:
+
+```bash
+npm install
+# Instala as dependências do frontend.
+npm run dev
+# Inicia o servidor de desenvolvimento do Vite.
+```
+
+Abra o endereço informado pelo Vite, normalmente `http://localhost:5173`.
+
+**CORS:** o backend autoriza por padrão `http://localhost:5173` e trata o preflight `OPTIONS`, incluindo `Authorization`. Se o Vite usar outra origem, configure `FRONTEND_ORIGIN` no backend e reinicie a API. `VITE_API_URL` define o destino da consulta; CORS não substitui autenticação. Aplique a migração V2 conforme o README do backend antes de usar o login desta versão.
+
+As páginas remotas mostram carregamento, lista vazia e erro de consulta. Os testes no Node não substituem a verificação do fluxo no navegador.
+
 ```bash
 npm run build
+# Verifica os tipos e gera a versão de produção em dist.
 npm run preview
+# Disponibiliza localmente a versão gerada para inspeção.
 ```
+
+## Testes
+
+```bash
+npm run test:run
+# Executa a suíte de services, controllers e telas; a integração externa fica ignorada por padrão.
+
+npm test
+# Executa os testes em modo de observação.
+```
+
+```bash
+VITE_RUN_API_INTEGRATION=true npx vitest run tests/services/CandidateService.integration.test.ts
+# Habilita a consulta à API configurada e verifica a projeção anônima; exige backend e banco disponíveis.
+```
+
+O teste de integração possui asserções para verificar aliases e ausência de CPF,
+nascimento, CEP e e-mail na consulta anônima; não imprime os dados recebidos.
+Os testes de tela usam `happy-dom`, com respostas HTTP simuladas, e incluem
+menus por perfil, gestão de recrutadores, curtidas e estados de erro.
+Esses testes não substituem a validação no navegador com a API real.
+
 ## Arquitetura
-> estrutura de pastas seguindo um princípio de mvc, gerada usando o comando `tree -I 'node_modules|dist|.git' -L 3` **e editado para melhor visualização**
+
+A organização separa páginas, componentes, controllers, services e modelos,
+mantendo a comunicação HTTP nos services e as regras de autorização no backend.
 
 ### Responsabilidades
-O ponto de entrada é `main.ts` que instancia `LinketinderApp()`(**orquestrador da parte backend**) e chama `renderAll()` para orquestrar o front. Cada **página/componente é responsável** pelos métodos necessários para o componente funcionar, por exemplo o `Header` contém *toggleSubmenu* que é uma função utilizada para o funcionamento correto do header.
+
+`main.ts` chama somente `renderAll()`. Essa função monta a aplicação, coordena
+a navegação e recria o cabeçalho após login/logout. O `Header` recebe o perfil
+autenticado e mostra apenas o menu correspondente; páginas e componentes
+montam a interface diretamente com a API do DOM.
+
+`SessionService` mantém usuário e token em memória, adiciona Bearer às chamadas
+protegidas e trata a invalidação da sessão. Controllers coordenam chamadas
+onde utilizados; as listagens em `renderAll` recebem funções que chamam os
+services diretamente. A autorização efetiva e as regras de match ficam no
+backend, não nos menus.
 
 ### estilização
 Como o módulo desse curso de TS e o contexto do desafio era focar no front-end, utilizei minha experiencia prévia de designer gráfico (confira aqui >> https://www.behance.net/athussilvasouza) pra tentar desenvolver um design limpo e agradável, utilizei regras de contraste para escolher as cores, mas me baseei na imagem do desafio (gosto muito de tons de azul). Usei essas regras e somado com o que aprendi no curso de html + css padronizei as cores e defini regras globais em `styles/global.css` e deixei as específicas no mesmo nível do componente/página. **Deixo claro que não utilizei react**. A imagem que me baseei para criar a paleta de cores:
@@ -30,130 +116,48 @@ Como o módulo desse curso de TS e o contexto do desafio era focar no front-end,
 > utiliza biblioteca `chart.js` para criar um gráfico a partir de uma `Job`, e retorna um grafico de contagem de frequencia das competencias para aquela vaga
 
 #### estrutura de pastas
+
 ```text
-Linketinder-FrontEnd
-├── public                     
-│   └── assets              
-├── README.md
-├── src
-│   ├── app
-│   │   └── LinketinderApp.ts
-│   ├── components
-│   │   ├── Header.ts
-│   ├── main.ts                 
-│   ├── models/   
-│   │   ├── Candidate.ts
-│   │   ├── Company.ts
-│   │   ├── Job.ts
-│   │   ├── Like.ts
-│   │   └── User.ts
-│   ├── pages/
-│   ├── renderAll.ts
-│   ├── styles
-│   │   └── global.css
-│   ├── types
-│   │   ├── AppState.ts
-│   │   ├── EntityInputs.ts
-│   │   └── UserType.ts
-│   └── vite-env.d.ts
-└── tsconfig.json
-
+src/
+├── app/                  # Demo legada isolada; não inicia no fluxo real
+├── controllers/          # Coordenação das chamadas aos services
+├── services/             # Comunicação HTTP, sessão em memória e conversão da resposta
+├── models/               # Candidate, Company, Job, Like e User
+├── types/                # Contratos de perfis, sessão, vagas, recrutadores, curtidas e matches
+├── view/
+│   ├── components/       # Formulários, cartões, layout e gráficos
+│   └── pages/            # Composição das páginas
+├── styles/
+├── main.ts
+└── renderAll.ts
+tests/
+├── controllers/
+├── services/
+└── view/
 ```
 
-A interface é construída diretamente com a API do DOM. O `LinketinderApp` concentra as regras de negócio e o acesso ao `localStorage`,o `renderAll` controla a exibição e interação do usuário enquanto as páginas coordenam os componentes exibidos. Para gerar um id aleatório para estrutura de vaga utilizei o `crypto.randomUUID()`, que gera um id de forma segura. 
-#### gitdiagram
-> ferramenta para visualizar melhor e entender os fluxos, os links são clicáveis
+Na consulta remota, a página aguarda a função de busca fornecida por
+`renderAll`. O `CandidateService` executa GET e converte a resposta em
+`Candidate`, preservando o ID do banco como string. Antes do match, o nome é
+`Candidato #ID`, com competências e formação; os campos privados ficam vazios.
+Nome, e-mail e descrição profissional só são usados quando liberados pela API.
 
-```mermaid
-%% Generated by https://gitdiagram.com/athus27/linketinder-frontend
-flowchart TD
+A demo `LinketinderApp` permanece separada, com regras e persistência locais.
+O fluxo integrado não a instancia nem gera IDs de vagas no navegador: os IDs
+vêm do banco após o cadastro pela API.
 
-subgraph group_ui["Interface and navigation"]
-  node_boot["App entry<br/>[main.ts]"]
-  node_navigation["Page navigation<br/>[renderAll.ts]"]
-  node_header["Menu header<br/>[Header.ts]"]
-  node_info["Info section<br/>[InfoSection.ts]"]
-end
+## Listagem remota de empresas e vagas
 
-subgraph group_profiles["Profiles and jobs"]
-  node_registration["Registration page<br/>[RegisterPage.ts]"]
-  node_userform["Profile form<br/>[UserForm.ts]"]
-  node_candidatefeed["Candidate feed"]
-  node_candidatecard["Candidate card"]
-  node_companyfeed["Company feed<br/>[CompanyFeedPage.ts]"]
-  node_companycard["Company card"]
-  node_jobregister["Job registration<br/>[JobRegisterPage.ts]"]
-  node_jobform["Job form<br/>[JobForm.ts]"]
-  node_jobfeed["Job feed<br/>[JobFeedPage.ts]"]
-  node_jobcard["Job card<br/>[JobProfileCard.ts]"]
-end
+`renderAll` fornece às páginas funções de busca com `CompanyService` e
+`JobService`. `CompanyFeedPage` e `JobFeedPage` aguardam os dados e mostram
+carregamento, lista vazia ou erro de consulta.
 
-subgraph group_matching["Likes and matches"]
-  node_candidate_like["Candidate likes"]
-  node_company_like["Company likes<br/>[CompanyLikePage.ts]"]
-end
+O `CompanyService` monta a listagem com aliases `Empresa #ID` e campos privados
+vazios. O contato pós-match é mostrado na página de matches, por meio do
+`MatchService`. O `JobService` converte `titulo`, `descricao`, `idEmpresa` e
+`competencias` em `title`, `description`, `companyId` e `skills`, preservando
+os IDs como strings. Empresa e recrutador consultam vagas próprias com
+`?minhas=true`; o candidato consulta as oportunidades disponíveis. O formulário
+envia `localVaga` no cadastro, mas esse campo não é exibido no card de vaga.
 
-subgraph group_domain["Domain and persistence"]
-  node_app["Business and storage<br/>[LinketinderApp.ts]"]
-  node_models["Domain entities<br/>[Like.ts]"]
-end
-
-node_person(("Browser user"))
-node_localstorage[("Browser localStorage")]
-
-node_boot -->|"instantiates"| node_app
-node_boot -->|"starts rendering"| node_navigation
-node_person -->|"uses menu"| node_header
-node_header -->|"invokes actions"| node_navigation
-node_navigation -->|"creates"| node_header
-node_navigation -->|"creates"| node_info
-node_navigation -->|"selects page"| node_registration
-node_navigation -->|"selects page"| node_candidatefeed
-node_navigation -->|"selects page"| node_companyfeed
-node_navigation -->|"selects page"| node_jobregister
-node_navigation -->|"selects page"| node_jobfeed
-node_navigation -->|"selects page"| node_candidate_like
-node_navigation -->|"selects page"| node_company_like
-node_registration -->|"coordinates"| node_userform
-node_jobregister -->|"coordinates"| node_jobform
-node_candidatefeed -->|"displays"| node_candidatecard
-node_companyfeed -->|"displays"| node_companycard
-node_jobfeed -->|"displays"| node_jobcard
-node_userform -->|"creates profiles"| node_app
-node_jobform -->|"creates jobs"| node_app
-node_candidate_like -->|"submits candidate like"| node_app
-node_company_like -->|"submits company like"| node_app
-node_app -->|"uses entities"| node_models
-node_app -->|"loads and saves"| node_localstorage
-
-click node_boot "https://github.com/athus27/linketinder-frontend/blob/main/src/main.ts"
-click node_navigation "https://github.com/athus27/linketinder-frontend/blob/main/src/renderAll.ts"
-click node_header "https://github.com/athus27/linketinder-frontend/blob/main/src/components/Header.ts"
-click node_info "https://github.com/athus27/linketinder-frontend/blob/main/src/components/InfoSection.ts"
-click node_registration "https://github.com/athus27/linketinder-frontend/blob/main/src/pages/RegisterPage.ts"
-click node_userform "https://github.com/athus27/linketinder-frontend/blob/main/src/components/UserForm.ts"
-click node_candidatefeed "https://github.com/athus27/linketinder-frontend/blob/main/src/pages/CandidateFeedPage.ts"
-click node_candidatecard "https://github.com/athus27/linketinder-frontend/blob/main/src/components/CandidateProfileCard.ts"
-click node_companyfeed "https://github.com/athus27/linketinder-frontend/blob/main/src/pages/CompanyFeedPage.ts"
-click node_companycard "https://github.com/athus27/linketinder-frontend/blob/main/src/components/CompanyProfileCard.ts"
-click node_jobregister "https://github.com/athus27/linketinder-frontend/blob/main/src/pages/JobRegisterPage.ts"
-click node_jobform "https://github.com/athus27/linketinder-frontend/blob/main/src/components/JobForm.ts"
-click node_jobfeed "https://github.com/athus27/linketinder-frontend/blob/main/src/pages/JobFeedPage.ts"
-click node_jobcard "https://github.com/athus27/linketinder-frontend/blob/main/src/components/JobProfileCard.ts"
-click node_candidate_like "https://github.com/athus27/linketinder-frontend/blob/main/src/pages/CandidateLikePage.ts"
-click node_company_like "https://github.com/athus27/linketinder-frontend/blob/main/src/pages/CompanyLikePage.ts"
-click node_app "https://github.com/athus27/linketinder-frontend/blob/main/src/app/LinketinderApp.ts"
-click node_models "https://github.com/athus27/linketinder-frontend/blob/main/src/models/Like.ts"
-
-classDef toneNeutral fill:#f8fafc,stroke:#334155,stroke-width:1.5px,color:#0f172a
-classDef toneBlue fill:#dbeafe,stroke:#2563eb,stroke-width:1.5px,color:#172554
-classDef toneAmber fill:#fef3c7,stroke:#d97706,stroke-width:1.5px,color:#78350f
-classDef toneMint fill:#dcfce7,stroke:#16a34a,stroke-width:1.5px,color:#14532d
-classDef toneRose fill:#ffe4e6,stroke:#e11d48,stroke-width:1.5px,color:#881337
-classDef toneIndigo fill:#e0e7ff,stroke:#4f46e5,stroke-width:1.5px,color:#312e81
-classDef toneTeal fill:#ccfbf1,stroke:#0f766e,stroke-width:1.5px,color:#134e4a
-class node_boot,node_navigation,node_header,node_info,node_person toneBlue
-class node_registration,node_userform,node_candidatefeed,node_candidatecard,node_companyfeed,node_companycard,node_jobregister,node_jobform,node_jobfeed,node_jobcard,node_localstorage toneAmber
-class node_candidate_like,node_company_like toneMint
-class node_app,node_models toneRose
-```
+Os testes unitários dos services verificam conversão, preservação dos IDs, lista vazia, falha HTTP e falha de conexão. Os testes dos controllers verificam retorno da lista e propagação de erros. A InfoSection consulta empresas, candidatos e vagas da API; falhas aparecem como indisponibilidade, não como zero. O gráfico carrega vagas e candidatos do backend e conta quantos candidatos possuem cada competência exigida pela vaga selecionada.
